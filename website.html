@@ -480,7 +480,7 @@ body{
   var tzOffsetMinutes = -(new Date().getTimezoneOffset());
 
   function escapeHTML(str){
-    return str.replace(/[&<>"']/g, function(ch){
+    return str.replace(/[&<>"]/g, function(ch){
       return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[ch];
     });
   }
