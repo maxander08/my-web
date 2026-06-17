@@ -694,6 +694,7 @@ body{
       out('wdyd  - what i do');
       out('edu   - where\'s my college');
       out('links - ig, linkedin, github');
+      out('wifi  - run a WiFi speed test');
       out('clear - clears the screen');
       out('tz    - change timezone, e.g. tz UTC+07:00');
       blank();
@@ -717,6 +718,18 @@ body{
       outRaw('Instagram: <a href="https://www.instagram.com/matthew.alexander08/" target="_blank" rel="noopener noreferrer">@matthew.alexander08</a>');
       outRaw('LinkedIn: <a href="https://www.linkedin.com/in/matthew-alexander-137764216/" target="_blank" rel="noopener noreferrer">https://www.linkedin.com/in/matthew-alexander-137764216/</a>');
       outRaw('GitHub: <a href="https://github.com/MaxOokA/" target="_blank" rel="noopener noreferrer">https://github.com/MaxOokA/</a>');
+    },
+    wifi: function(){
+      out('Running WiFi speed test...', 'dim');
+      runWifiSpeedTest(function(speeds){
+        if (!speeds){
+          out('WiFi is offline.', 'error');
+          return;
+        }
+        out('WiFi speed test complete.');
+        out('Download: ' + formatMbps(speeds.download));
+        out('Upload: ' + formatMbps(speeds.upload));
+      });
     },
     tz: function(args){
       if (!args){
@@ -1018,12 +1031,13 @@ body{
     };
   }
 
-  function showWifiSpeedTest(){
+  function runWifiSpeedTest(onComplete){
     var item = document.getElementById('wifiItem');
     if (!item) return;
     if (!navigator.onLine){
       item.classList.remove('testing');
       setWifiLabel('OFFLINE');
+      if (onComplete) onComplete(null);
       return;
     }
 
@@ -1040,7 +1054,12 @@ body{
       item.classList.remove('testing');
       setWifiLabel('Down ' + formatMbps(speeds.download) + ' / Up ' + formatMbps(speeds.upload));
       wifiTestTimer = null;
+      if (onComplete) onComplete(speeds);
     }, 900);
+  }
+
+  function showWifiSpeedTest(){
+    runWifiSpeedTest();
   }
 
   function updateOnlineStatus(){
