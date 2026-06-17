@@ -429,6 +429,47 @@ body{
   color:var(--text);
 }
 
+.lang-wrap{
+  position:relative;
+  flex:0 0 auto;
+}
+
+.lang-btn{
+  min-width:56px;
+  justify-content:center;
+}
+
+.lang-menu{
+  position:absolute;
+  bottom:30px;
+  left:0;
+  display:flex;
+  flex-direction:column;
+  min-width:160px;
+  background:#0f131c;
+  border:1px solid var(--taskbar-border);
+  box-shadow:0 10px 24px rgba(0,0,0,0.5);
+  z-index:10;
+}
+
+.lang-menu[hidden]{ display:none; }
+
+.lang-option{
+  appearance:none;
+  -webkit-appearance:none;
+  border:none;
+  border-bottom:1px solid #1a2030;
+  background:transparent;
+  color:var(--text);
+  font:inherit;
+  text-align:left;
+  padding:7px 10px;
+  cursor:pointer;
+}
+
+.lang-option:last-child{ border-bottom:none; }
+.lang-option:hover{ background:#181d2c; color:var(--text-bright); }
+
 #dateLabel{ color:var(--text-dim); }
 #clockLabel{ color:var(--text-bright); min-width:78px; text-align:right; }
 
@@ -485,6 +526,11 @@ body{
     <span id="wifiLabel">CONNECTED</span>
   </button>
   <div class="taskbar-sep"></div>
+  <div class="lang-wrap" id="langWrap">
+    <button type="button" class="task-item taskbar-button clickable lang-btn" id="langBtn" aria-label="Change language">EN</button>
+    <div class="lang-menu" id="langMenu" hidden></div>
+  </div>
+  <div class="taskbar-sep"></div>
   <div class="task-item tz-item" id="tzItem" title="Click to change timezone, e.g. UTC+07:00">
     <span id="tzLabel">UTC+00:00</span>
   </div>
@@ -506,9 +552,202 @@ body{
   var crtScreen   = document.getElementById('crtScreen');
   var terminal    = document.getElementById('terminal');
   var startBtn    = document.getElementById('startBtn');
+  var langBtn     = document.getElementById('langBtn');
+  var langMenu    = document.getElementById('langMenu');
+  var tzItem      = document.getElementById('tzItem');
 
   var history = [];
   var historyIndex = -1;
+  var currentLang = 'en';
+
+  var LANGUAGES = [
+    { code:'en', short:'EN', name:'English' },
+    { code:'id', short:'ID', name:'Bahasa Indonesia' },
+    { code:'zh', short:'繁中', name:'繁體中文' },
+    { code:'fr', short:'FR', name:'Français' }
+  ];
+
+  var I18N = {
+    en: {
+      needHelp:'Need help? Just type it.',
+      helpShow:'shows this window',
+      helpName:'my name',
+      helpBirth:'my birthday',
+      helpWdyd:'what i do',
+      helpEdu:'where\'s my college',
+      helpLinks:'ig, linkedin, github',
+      helpWifi:'run a WiFi speed test',
+      helpClear:'clears the screen',
+      helpTz:'change timezone, e.g. tz UTC+07:00',
+      tipCalc:'Tip: type any expression like 2*(3+4) to use it as a calculator.',
+      wifiAria:'Run WiFi speed test',
+      wifiConnected:'CONNECTED',
+      wifiOffline:'OFFLINE',
+      wifiTesting:'TESTING...',
+      wifiDown:'Down',
+      wifiUp:'Up',
+      wifiRun:'Running WiFi speed test...',
+      wifiOfflineTerminal:'WiFi is offline.',
+      wifiDone:'WiFi speed test complete.',
+      wifiDownload:'Download',
+      wifiUpload:'Upload',
+      tzTitle:'Click to change timezone, e.g. UTC+07:00',
+      tzCurrent:'Current timezone:',
+      tzInvalid:'Invalid timezone format. Example: tz UTC+07:00',
+      tzSet:'Timezone set to',
+      badCommand:'Bad command or file name.',
+      typeHelp:'Type \'help\' for a list of available commands.',
+      calcError:'Calculator error:',
+      exitUnsupported:'EXIT command not supported in this build.',
+      langAria:'Change language',
+      langChanged:'Language changed to'
+    },
+    id: {
+      needHelp:'Butuh bantuan? Cukup ketik saja.',
+      helpShow:'menampilkan jendela ini',
+      helpName:'nama saya',
+      helpBirth:'tanggal lahir saya',
+      helpWdyd:'apa yang saya lakukan',
+      helpEdu:'kampus saya di mana',
+      helpLinks:'ig, linkedin, github',
+      helpWifi:'jalankan tes kecepatan WiFi',
+      helpClear:'membersihkan layar',
+      helpTz:'ganti zona waktu, mis. tz UTC+07:00',
+      tipCalc:'Tip: ketik ekspresi seperti 2*(3+4) untuk kalkulator.',
+      wifiAria:'Jalankan tes kecepatan WiFi',
+      wifiConnected:'TERHUBUNG',
+      wifiOffline:'OFFLINE',
+      wifiTesting:'MENGUJI...',
+      wifiDown:'Unduh',
+      wifiUp:'Unggah',
+      wifiRun:'Menjalankan tes kecepatan WiFi...',
+      wifiOfflineTerminal:'WiFi sedang offline.',
+      wifiDone:'Tes kecepatan WiFi selesai.',
+      wifiDownload:'Unduh',
+      wifiUpload:'Unggah',
+      tzTitle:'Klik untuk mengubah zona waktu, mis. UTC+07:00',
+      tzCurrent:'Zona waktu saat ini:',
+      tzInvalid:'Format zona waktu tidak valid. Contoh: tz UTC+07:00',
+      tzSet:'Zona waktu diatur ke',
+      badCommand:'Perintah atau nama file salah.',
+      typeHelp:'Ketik \'help\' untuk daftar perintah yang tersedia.',
+      calcError:'Error kalkulator:',
+      exitUnsupported:'Perintah EXIT tidak didukung di build ini.',
+      langAria:'Ganti bahasa',
+      langChanged:'Bahasa diubah ke'
+    },
+    zh: {
+      needHelp:'需要幫助嗎？直接輸入即可。',
+      helpShow:'顯示此視窗',
+      helpName:'我的名字',
+      helpBirth:'我的生日',
+      helpWdyd:'我在做什麼',
+      helpEdu:'我的大學',
+      helpLinks:'ig、linkedin、github',
+      helpWifi:'執行 WiFi 速度測試',
+      helpClear:'清除畫面',
+      helpTz:'變更時區，例如 tz UTC+07:00',
+      tipCalc:'提示：輸入 2*(3+4) 這類算式可當計算機使用。',
+      wifiAria:'執行 WiFi 速度測試',
+      wifiConnected:'已連線',
+      wifiOffline:'離線',
+      wifiTesting:'測試中...',
+      wifiDown:'下載',
+      wifiUp:'上傳',
+      wifiRun:'正在執行 WiFi 速度測試...',
+      wifiOfflineTerminal:'WiFi 目前離線。',
+      wifiDone:'WiFi 速度測試完成。',
+      wifiDownload:'下載',
+      wifiUpload:'上傳',
+      tzTitle:'點擊以變更時區，例如 UTC+07:00',
+      tzCurrent:'目前時區：',
+      tzInvalid:'時區格式無效。範例：tz UTC+07:00',
+      tzSet:'時區已設為',
+      badCommand:'錯誤的命令或檔案名稱。',
+      typeHelp:'輸入 \'help\' 以查看可用命令。',
+      calcError:'計算錯誤：',
+      exitUnsupported:'此版本不支援 EXIT 指令。',
+      langAria:'切換語言',
+      langChanged:'語言已切換為'
+    },
+    fr: {
+      needHelp:'Besoin d\'aide ? Tape simplement une commande.',
+      helpShow:'affiche cette fenêtre',
+      helpName:'mon nom',
+      helpBirth:'ma date de naissance',
+      helpWdyd:'ce que je fais',
+      helpEdu:'où est mon université',
+      helpLinks:'ig, linkedin, github',
+      helpWifi:'lancer un test de vitesse WiFi',
+      helpClear:'efface l\'écran',
+      helpTz:'changer le fuseau horaire, ex: tz UTC+07:00',
+      tipCalc:'Astuce: tape une expression comme 2*(3+4) pour la calculatrice.',
+      wifiAria:'Lancer un test de vitesse WiFi',
+      wifiConnected:'CONNECTE',
+      wifiOffline:'HORS LIGNE',
+      wifiTesting:'TEST EN COURS...',
+      wifiDown:'Desc.',
+      wifiUp:'Mont.',
+      wifiRun:'Test de vitesse WiFi en cours...',
+      wifiOfflineTerminal:'Le WiFi est hors ligne.',
+      wifiDone:'Test de vitesse WiFi termine.',
+      wifiDownload:'Telechargement',
+      wifiUpload:'Televersement',
+      tzTitle:'Clique pour changer le fuseau horaire, ex: UTC+07:00',
+      tzCurrent:'Fuseau actuel :',
+      tzInvalid:'Format de fuseau invalide. Exemple : tz UTC+07:00',
+      tzSet:'Fuseau defini sur',
+      badCommand:'Commande ou nom de fichier incorrect.',
+      typeHelp:'Tape \'help\' pour la liste des commandes.',
+      calcError:'Erreur calculatrice :',
+      exitUnsupported:'La commande EXIT n\'est pas prise en charge.',
+      langAria:'Changer la langue',
+      langChanged:'Langue changee en'
+    }
+  };
+
+  function t(key){
+    var pack = I18N[currentLang] || I18N.en;
+    return pack[key] || I18N.en[key] || key;
+  }
+
+  function currentLanguageMeta(){
+    return LANGUAGES.filter(function(lang){ return lang.code === currentLang; })[0] || LANGUAGES[0];
+  }
+
+  function rebuildLanguageMenu(){
+    langMenu.innerHTML = '';
+    LANGUAGES.forEach(function(lang){
+      if (lang.code === currentLang) return;
+      var option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'lang-option';
+      option.textContent = lang.name;
+      option.addEventListener('click', function(){
+        setLanguage(lang.code);
+      });
+      langMenu.appendChild(option);
+    });
+  }
+
+  function setLanguage(langCode){
+    if (!I18N[langCode] || langCode === currentLang) return;
+    currentLang = langCode;
+    applyLanguageToUI();
+    rebuildLanguageMenu();
+    langMenu.hidden = true;
+    out(t('langChanged') + ' ' + currentLanguageMeta().name + '.', 'dim');
+    blank();
+  }
+
+  function applyLanguageToUI(){
+    var langMeta = currentLanguageMeta();
+    langBtn.textContent = langMeta.short;
+    langBtn.setAttribute('aria-label', t('langAria'));
+    document.getElementById('wifiItem').setAttribute('aria-label', t('wifiAria'));
+    tzItem.title = t('tzTitle');
+    updateOnlineStatus();
+  }
 
   // current display timezone, as an offset from UTC in minutes (default: browser's own zone)
   var tzOffsetMinutes = -(new Date().getTimezoneOffset());
@@ -654,16 +893,18 @@ body{
 
   // banner content is kept separate so 'clear' can restore exactly this,
   // instead of wiping it along with the rest of the screen
-  var bannerLines = [
-    { text:'PORTFOLIO-OS [Version 1.00]', cls:'heading' },
-    { text:'(C) Matthew Alexander Bintoro. All rights reserved.', cls:'dim' },
-    { blank:true },
-    { text:'Need help? Just type it.' },
-    { blank:true }
-  ];
+  function getBannerLines(){
+    return [
+      { text:'PORTFOLIO-OS [Version 1.00]', cls:'heading' },
+      { text:'(C) Matthew Alexander Bintoro. All rights reserved.', cls:'dim' },
+      { blank:true },
+      { text:t('needHelp') },
+      { blank:true }
+    ];
+  }
 
   function bootSequence(){
-    bannerLines.forEach(function(l){
+    getBannerLines().forEach(function(l){
       if (l.blank) blank();
       else out(l.text, l.cls);
     });
@@ -674,7 +915,7 @@ body{
   // clear command itself (matching real MS-DOS behaviour)
   function resetToBanner(){
     output.innerHTML = '';
-    bannerLines.forEach(function(l){
+    getBannerLines().forEach(function(l){
       if (l.blank){
         var b = makeLineEl();
         b.innerHTML = '&nbsp;';
@@ -688,17 +929,17 @@ body{
 
   var commands = {
     help: function(){
-      out('help  - shows this window');
-      out('name  - my name');
-      out('birth - my birthday');
-      out('wdyd  - what i do');
-      out('edu   - where\'s my college');
-      out('links - ig, linkedin, github');
-      out('wifi  - run a WiFi speed test');
-      out('clear - clears the screen');
-      out('tz    - change timezone, e.g. tz UTC+07:00');
+      out('help  - ' + t('helpShow'));
+      out('name  - ' + t('helpName'));
+      out('birth - ' + t('helpBirth'));
+      out('wdyd  - ' + t('helpWdyd'));
+      out('edu   - ' + t('helpEdu'));
+      out('links - ' + t('helpLinks'));
+      out('wifi  - ' + t('helpWifi'));
+      out('clear - ' + t('helpClear'));
+      out('tz    - ' + t('helpTz'));
       blank();
-      out('Tip: type any expression like 2*(3+4) to use it as a calculator.', 'dim');
+      out(t('tipCalc'), 'dim');
     },
     name: function(){
       out('Matthew Alexander Bintoro');
@@ -720,31 +961,31 @@ body{
       outRaw('GitHub: <a href="https://github.com/MaxOokA/" target="_blank" rel="noopener noreferrer">https://github.com/MaxOokA/</a>');
     },
     wifi: function(){
-      out('Running WiFi speed test...', 'dim');
+      out(t('wifiRun'), 'dim');
       runWifiSpeedTest(function(speeds){
         if (!speeds){
-          out('WiFi is offline.', 'error');
+          out(t('wifiOfflineTerminal'), 'error');
           return;
         }
-        out('WiFi speed test complete.');
-        out('Download: ' + formatMbps(speeds.download));
-        out('Upload: ' + formatMbps(speeds.upload));
+        out(t('wifiDone'));
+        out(t('wifiDownload') + ': ' + formatMbps(speeds.download));
+        out(t('wifiUpload') + ': ' + formatMbps(speeds.upload));
       });
     },
     tz: function(args){
       if (!args){
-        out('Current timezone: ' + formatOffsetLabel(tzOffsetMinutes));
+        out(t('tzCurrent') + ' ' + formatOffsetLabel(tzOffsetMinutes));
         return;
       }
       var parsed = parseTimezoneOffset(args);
       if (parsed === null){
-        out('Invalid timezone format. Example: tz UTC+07:00', 'error');
+        out(t('tzInvalid'), 'error');
         return;
       }
       tzOffsetMinutes = parsed;
       updateClock();
       updateTzLabel();
-      out('Timezone set to ' + formatOffsetLabel(tzOffsetMinutes));
+      out(t('tzSet') + ' ' + formatOffsetLabel(tzOffsetMinutes));
     }
   };
 
@@ -864,11 +1105,11 @@ body{
         var val = evaluateExpression(trimmed);
         out('= ' + formatNumber(val));
       } catch (e){
-        out('Calculator error: ' + e.message, 'error');
+        out(t('calcError') + ' ' + e.message, 'error');
       }
     } else {
-      out('Bad command or file name.', 'error');
-      out('Type \'help\' for a list of available commands.', 'dim');
+      out(t('badCommand'), 'error');
+      out(t('typeHelp'), 'dim');
     }
     blank();
   }
@@ -930,7 +1171,7 @@ body{
       } else if (action === 'max'){
         terminal.classList.toggle('maximized');
       } else if (action === 'close'){
-        out('EXIT command not supported in this build.', 'error');
+        out(t('exitUnsupported'), 'error');
         scrollToBottom();
       }
     });
@@ -962,8 +1203,6 @@ body{
   setInterval(updateClock, 1000);
 
   // ---------- taskbar: click-to-edit timezone ----------
-
-  var tzItem = document.getElementById('tzItem');
 
   function updateTzLabel(){
     var lbl = document.getElementById('tzLabel');
@@ -1036,7 +1275,7 @@ body{
     if (!item) return;
     if (!navigator.onLine){
       item.classList.remove('testing');
-      setWifiLabel('OFFLINE');
+      setWifiLabel(t('wifiOffline'));
       if (onComplete) onComplete(null);
       return;
     }
@@ -1047,12 +1286,12 @@ body{
     }
 
     item.classList.add('testing');
-    setWifiLabel('TESTING...');
+    setWifiLabel(t('wifiTesting'));
 
     wifiTestTimer = setTimeout(function(){
       var speeds = estimateWifiSpeeds();
       item.classList.remove('testing');
-      setWifiLabel('Down ' + formatMbps(speeds.download) + ' / Up ' + formatMbps(speeds.upload));
+      setWifiLabel(t('wifiDown') + ' ' + formatMbps(speeds.download) + ' / ' + t('wifiUp') + ' ' + formatMbps(speeds.upload));
       wifiTestTimer = null;
       if (onComplete) onComplete(speeds);
     }, 900);
@@ -1067,7 +1306,7 @@ body{
     if (navigator.onLine){
       item.classList.add('online');
       if (!item.classList.contains('testing')){
-        setWifiLabel('CONNECTED');
+        setWifiLabel(t('wifiConnected'));
       }
     } else {
       item.classList.remove('online');
@@ -1076,13 +1315,28 @@ body{
         clearTimeout(wifiTestTimer);
         wifiTestTimer = null;
       }
-      setWifiLabel('OFFLINE');
+      setWifiLabel(t('wifiOffline'));
     }
   }
+
+  langBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    langMenu.hidden = !langMenu.hidden;
+  });
+
+  langMenu.addEventListener('click', function(e){
+    e.stopPropagation();
+  });
+
+  document.addEventListener('click', function(){
+    langMenu.hidden = true;
+  });
 
   window.addEventListener('online', updateOnlineStatus);
   window.addEventListener('offline', updateOnlineStatus);
   document.getElementById('wifiItem').addEventListener('click', showWifiSpeedTest);
+  applyLanguageToUI();
+  rebuildLanguageMenu();
   updateOnlineStatus();
 
   // ---------- boot ----------
