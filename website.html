@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>C:\MATTHEW\PORTFOLIO&gt;</title>
 <style>
 
@@ -35,6 +35,7 @@
 
 html,body{
   height:100%;
+  height:100dvh; /* on phones, dvh tracks the real visible area instead of the address-bar-inflated 100vh */
   margin:0;
   background:var(--black);
   overflow:hidden;
@@ -51,6 +52,7 @@ body{
   align-items:center;
   justify-content:flex-start;
   min-height:100vh;
+  min-height:100dvh;
 }
 
 /* faint vignette behind everything, gives the screen some depth without
@@ -65,6 +67,7 @@ body{
   background:
     radial-gradient(ellipse at 50% 35%, #0c0e16 0%, #000000 70%);
   position:relative;
+  min-height:0;
 }
 
 /* ---------- terminal window ---------- */
@@ -73,6 +76,7 @@ body{
   width:var(--win-w);
   height:var(--win-h);
   max-height:calc(100vh - 110px);
+  max-height:calc(100dvh - 110px);
   display:flex;
   flex-direction:column;
   background:var(--void);
@@ -87,7 +91,9 @@ body{
 .terminal.maximized{
   width:96vw;
   height:calc(100vh - 70px);
+  height:calc(100dvh - 70px);
   max-height:calc(100vh - 70px);
+  max-height:calc(100dvh - 70px);
 }
 
 .terminal.minimized{
@@ -290,11 +296,12 @@ body{
 .taskbar{
   flex:0 0 auto;
   width:100%;
-  height:34px;
+  min-height:34px;
   display:flex;
   align-items:center;
   gap:10px;
   padding:0 10px;
+  padding-bottom:env(safe-area-inset-bottom); /* keeps the bar clear of iPhone home-indicator / Safari's bottom toolbar */
   background:var(--taskbar-bg);
   border-top:1px solid var(--taskbar-border);
   box-shadow:0 -1px 0 rgba(255,255,255,0.03) inset;
@@ -304,6 +311,8 @@ body{
   overflow-x:auto;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
+  position:relative;
+  z-index:5;
 }
 
 .taskbar::-webkit-scrollbar{ display:none; }
@@ -421,6 +430,61 @@ body{
   outline:none;
 }
 
+/* ---------- language switcher ---------- */
+
+.lang-item{
+  position:relative;
+  cursor:pointer;
+  padding:2px 7px;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.lang-item:hover{
+  border-color:var(--taskbar-border);
+  color:var(--cyan);
+}
+
+#langFlag{ font-size:14px; line-height:1; }
+
+.lang-menu{
+  position:absolute;
+  bottom:calc(100% + 8px);
+  right:0;
+  display:flex;
+  flex-direction:column;
+  min-width:120px;
+  background:#0b0c12;
+  border:1px solid var(--cyan-dim);
+  box-shadow:0 10px 28px rgba(0,0,0,0.6);
+  z-index:30;
+}
+
+.lang-menu[hidden]{ display:none; }
+
+.lang-option{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  padding:7px 10px;
+  background:transparent;
+  border:none;
+  border-bottom:1px solid var(--taskbar-border);
+  color:var(--text);
+  font-family:inherit;
+  font-size:13px;
+  text-align:left;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.lang-option:last-child{ border-bottom:none; }
+.lang-option:hover:not(:disabled){ background:#181d2c; color:var(--cyan); }
+.lang-option:disabled{ color:var(--text-dim); opacity:.45; cursor:default; }
+.lang-option.active{ color:var(--amber); }
+
 .taskbar .clock-block{
   margin-left:auto;
   display:flex;
@@ -489,6 +553,17 @@ body{
     <span id="tzLabel">UTC+00:00</span>
   </div>
   <div class="taskbar-sep"></div>
+  <div class="task-item lang-item" id="langItem" title="Change language">
+    <span id="langFlag">&#127468;&#127463;</span><span id="langCodeLabel">EN</span>
+    <div class="lang-menu" id="langMenu" hidden>
+      <button type="button" class="lang-option" data-lang="EN"><span>&#127468;&#127463;</span><span>EN</span></button>
+      <button type="button" class="lang-option" data-lang="TW"><span>&#127481;&#127484;</span><span>TW</span></button>
+      <button type="button" class="lang-option" data-lang="ID"><span>&#127470;&#127465;</span><span>ID</span></button>
+      <button type="button" class="lang-option" data-lang="FR"><span>&#127467;&#127479;</span><span>FR</span></button>
+      <button type="button" class="lang-option" data-lang="DE"><span>&#127465;&#127466;</span><span>DE</span></button>
+    </div>
+  </div>
+  <div class="taskbar-sep"></div>
   <div class="task-item clock-block">
     <span id="dateLabel">WED 17 JUN 2026</span>
     <span id="clockLabel">00:00:00 AM</span>
@@ -512,6 +587,239 @@ body{
 
   // current display timezone, as an offset from UTC in minutes (default: browser's own zone)
   var tzOffsetMinutes = -(new Date().getTimezoneOffset());
+
+  // ---------- i18n ----------
+
+  var currentLang = 'EN';
+
+  var langMeta = {
+    EN: { flag:'\uD83C\uDDEC\uD83C\uDDE7', name:'English' },
+    TW: { flag:'\uD83C\uDDF9\uD83C\uDDFC', name:'\u7E41\u9AD4\u4E2D\u6587' },
+    ID: { flag:'\uD83C\uDDEE\uD83C\uDDE9', name:'Bahasa Indonesia' },
+    FR: { flag:'\uD83C\uDDEB\uD83C\uDDF7', name:'Fran\u00E7ais' },
+    DE: { flag:'\uD83C\uDDE9\uD83C\uDDEA', name:'Deutsch' }
+  };
+
+  var DOW_BY_LANG = {
+    EN: ['SUN','MON','TUE','WED','THU','FRI','SAT'],
+    TW: ['\u9031\u65E5','\u9031\u4E00','\u9031\u4E8C','\u9031\u4E09','\u9031\u56DB','\u9031\u4E94','\u9031\u516D'],
+    ID: ['MIN','SEN','SEL','RAB','KAM','JUM','SAB'],
+    FR: ['DIM','LUN','MAR','MER','JEU','VEN','SAM'],
+    DE: ['SO','MO','DI','MI','DO','FR','SA']
+  };
+
+  var MON_BY_LANG = {
+    EN: ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'],
+    TW: ['1\u6708','2\u6708','3\u6708','4\u6708','5\u6708','6\u6708','7\u6708','8\u6708','9\u6708','10\u6708','11\u6708','12\u6708'],
+    ID: ['JAN','FEB','MAR','APR','MEI','JUN','JUL','AGU','SEP','OKT','NOV','DES'],
+    FR: ['JANV','F\u00C9VR','MARS','AVR','MAI','JUIN','JUIL','AO\u00DBT','SEPT','OCT','NOV','D\u00C9C'],
+    DE: ['JAN','FEB','M\u00C4R','APR','MAI','JUN','JUL','AUG','SEP','OKT','NOV','DEZ']
+  };
+
+  var translations = {
+    EN: {
+      bootHelp: "Need help? Just type it.",
+      descHelp: "shows this window",
+      descName: "my name",
+      descBirth: "my birthday",
+      descWdyd: "what i do",
+      descEdu: "where's my college",
+      descLinks: "ig, linkedin, github",
+      descWifi: "run a WiFi speed test",
+      descClear: "clears the screen",
+      descTz: "change timezone, e.g. tz UTC+07:00",
+      descLang: "change language, e.g. lang DE",
+      helpTip: "Tip: type any expression like 2*(3+4) to use it as a calculator.",
+      wdyd1: "building @lagmite",
+      wdyd2: "code for fun",
+      wdyd3: "do competitions",
+      badCommand: "Bad command or file name.",
+      typeHelpHint: "Type 'help' for a list of available commands.",
+      calcErrorPrefix: "Calculator error: ",
+      tzInvalid: "Invalid timezone format. Example: tz UTC+07:00",
+      tzCurrent: "Current timezone: ",
+      tzSet: "Timezone set to ",
+      exitNotSupported: "EXIT command not supported in this build.",
+      wifiRunning: "Running WiFi speed test...",
+      wifiComplete: "WiFi speed test complete.",
+      wifiDownload: "Download: ",
+      wifiUpload: "Upload: ",
+      wifiOfflineErr: "WiFi is offline.",
+      wifiConnected: "CONNECTED",
+      wifiOffline: "OFFLINE",
+      wifiTesting: "TESTING...",
+      wifiDownShort: "Down",
+      wifiUpShort: "Up",
+      langCurrent: "Current language: ",
+      langAvailable: "Available: EN, TW, ID, FR, DE",
+      langSet: "Language set to ",
+      langInvalid: "Unknown language code. Available: EN, TW, ID, FR, DE"
+    },
+    TW: {
+      bootHelp: "\u9700\u8981\u5E6B\u52A9\uFF1F\u8F38\u5165\u6307\u4EE4\u5C31\u597D\u3002",
+      descHelp: "\u986F\u793A\u6B64\u8996\u7A97",
+      descName: "\u6211\u7684\u540D\u5B57",
+      descBirth: "\u6211\u7684\u751F\u65E5",
+      descWdyd: "\u6211\u5728\u505A\u4EC0\u9EBC",
+      descEdu: "\u6211\u7684\u5927\u5B78\u5728\u54EA\u88E1",
+      descLinks: "ig, linkedin, github",
+      descWifi: "\u57F7\u884C WiFi \u901F\u5EA6\u6E2C\u8A66",
+      descClear: "\u6E05\u9664\u756B\u9762",
+      descTz: "\u8B8A\u66F4\u6642\u5340\uFF0C\u4F8B\u5982 tz UTC+07:00",
+      descLang: "\u8B8A\u66F4\u8A9E\u8A00\uFF0C\u4F8B\u5982 lang DE",
+      helpTip: "\u63D0\u793A\uFF1A\u8F38\u5165\u50CF 2*(3+4) \u9019\u6A23\u7684\u7B97\u5F0F\u5373\u53EF\u7576\u8A08\u7B97\u6A5F\u4F7F\u7528\u3002",
+      wdyd1: "\u6B63\u5728\u958B\u767C @lagmite",
+      wdyd2: "\u70BA\u4E50\u8DA3\u5BEB\u7A0B\u5F0F",
+      wdyd3: "\u53C3\u52A0\u7AF6\u8CFD",
+      badCommand: "\u932F\u8AA4\u7684\u6307\u4EE4\u6216\u6A94\u6848\u540D\u7A31\u3002",
+      typeHelpHint: "\u8F38\u5165\u300Chelp\u300D\u67E5\u770B\u53EF\u7528\u6307\u4EE4\u6E05\u5355\u3002",
+      calcErrorPrefix: "\u8A08\u7B97\u6A5F\u932F\u8AA4\uFF1A",
+      tzInvalid: "\u6642\u5340\u683C\u5F0F\u932F\u8AA4\uFF0C\u4F8B\u5982\uFF1Atz UTC+07:00",
+      tzCurrent: "\u76EE\u524D\u6642\u5340\uFF1A",
+      tzSet: "\u6642\u5340\u5DF2\u8A2D\u5B9A\u70BA ",
+      exitNotSupported: "\u6B64\u7248\u672C\u4E0D\u652F\u63F4 EXIT \u6307\u4EE4\u3002",
+      wifiRunning: "\u6B63\u5728\u57F7\u884C WiFi \u901F\u5EA6\u6E2C\u8A66\u2026",
+      wifiComplete: "WiFi \u901F\u5EA6\u6E2C\u8A66\u5B8C\u6210\u3002",
+      wifiDownload: "\u4E0B\u8F09\uFF1A",
+      wifiUpload: "\u4E0A\u50B3\uFF1A",
+      wifiOfflineErr: "WiFi \u5DF2\u96E2\u7DDA\u3002",
+      wifiConnected: "\u5DF2\u9023\u7DDA",
+      wifiOffline: "\u96E2\u7DDA",
+      wifiTesting: "\u6E2C\u8A66\u4E2D\u2026",
+      wifiDownShort: "\u4E0B\u8F09",
+      wifiUpShort: "\u4E0A\u50B3",
+      langCurrent: "\u76EE\u524D\u8A9E\u8A00\uFF1A",
+      langAvailable: "\u53EF\u7528\uFF1AEN, TW, ID, FR, DE",
+      langSet: "\u8A9E\u8A00\u5DF2\u8A2D\u5B9A\u70BA ",
+      langInvalid: "\u4E0D\u660E\u7684\u8A9E\u8A00\u4EE3\u78BC\u3002\u53EF\u7528\uFF1AEN, TW, ID, FR, DE"
+    },
+    ID: {
+      bootHelp: "Butuh bantuan? Tinggal ketik saja.",
+      descHelp: "menampilkan jendela ini",
+      descName: "nama saya",
+      descBirth: "tanggal lahir saya",
+      descWdyd: "apa yang saya kerjakan",
+      descEdu: "kampus saya",
+      descLinks: "ig, linkedin, github",
+      descWifi: "jalankan tes kecepatan WiFi",
+      descClear: "membersihkan layar",
+      descTz: "ubah zona waktu, contoh tz UTC+07:00",
+      descLang: "ubah bahasa, contoh lang DE",
+      helpTip: "Tips: ketik ekspresi seperti 2*(3+4) untuk menggunakannya sebagai kalkulator.",
+      wdyd1: "membangun @lagmite",
+      wdyd2: "ngoding untuk hobi",
+      wdyd3: "ikut kompetisi",
+      badCommand: "Perintah atau nama file tidak dikenali.",
+      typeHelpHint: "Ketik 'help' untuk melihat daftar perintah yang tersedia.",
+      calcErrorPrefix: "Error kalkulator: ",
+      tzInvalid: "Format zona waktu tidak valid. Contoh: tz UTC+07:00",
+      tzCurrent: "Zona waktu saat ini: ",
+      tzSet: "Zona waktu diatur ke ",
+      exitNotSupported: "Perintah EXIT tidak didukung pada build ini.",
+      wifiRunning: "Menjalankan tes kecepatan WiFi...",
+      wifiComplete: "Tes kecepatan WiFi selesai.",
+      wifiDownload: "Unduh: ",
+      wifiUpload: "Unggah: ",
+      wifiOfflineErr: "WiFi sedang offline.",
+      wifiConnected: "TERHUBUNG",
+      wifiOffline: "OFFLINE",
+      wifiTesting: "MENGUJI...",
+      wifiDownShort: "Unduh",
+      wifiUpShort: "Unggah",
+      langCurrent: "Bahasa saat ini: ",
+      langAvailable: "Tersedia: EN, TW, ID, FR, DE",
+      langSet: "Bahasa diatur ke ",
+      langInvalid: "Kode bahasa tidak dikenali. Tersedia: EN, TW, ID, FR, DE"
+    },
+    FR: {
+      bootHelp: "Besoin d'aide ? Tape-la, c'est tout.",
+      descHelp: "affiche cette fen\u00EAtre",
+      descName: "mon nom",
+      descBirth: "mon anniversaire",
+      descWdyd: "ce que je fais",
+      descEdu: "o\u00F9 est mon universit\u00E9",
+      descLinks: "ig, linkedin, github",
+      descWifi: "lancer un test de vitesse WiFi",
+      descClear: "efface l'\u00E9cran",
+      descTz: "changer le fuseau horaire, ex. tz UTC+07:00",
+      descLang: "changer la langue, ex. lang DE",
+      helpTip: "Astuce : tape une expression comme 2*(3+4) pour l'utiliser comme calculatrice.",
+      wdyd1: "je d\u00E9veloppe @lagmite",
+      wdyd2: "je code pour le plaisir",
+      wdyd3: "je participe \u00E0 des comp\u00E9titions",
+      badCommand: "Commande ou nom de fichier incorrect.",
+      typeHelpHint: "Tape \u00AB help \u00BB pour voir la liste des commandes disponibles.",
+      calcErrorPrefix: "Erreur de calcul : ",
+      tzInvalid: "Format de fuseau horaire invalide. Exemple : tz UTC+07:00",
+      tzCurrent: "Fuseau horaire actuel : ",
+      tzSet: "Fuseau horaire r\u00E9gl\u00E9 sur ",
+      exitNotSupported: "La commande EXIT n'est pas prise en charge dans cette version.",
+      wifiRunning: "Test de vitesse WiFi en cours...",
+      wifiComplete: "Test de vitesse WiFi termin\u00E9.",
+      wifiDownload: "T\u00E9l\u00E9chargement : ",
+      wifiUpload: "Envoi : ",
+      wifiOfflineErr: "Le WiFi est hors ligne.",
+      wifiConnected: "CONNECT\u00C9",
+      wifiOffline: "HORS LIGNE",
+      wifiTesting: "TEST EN COURS...",
+      wifiDownShort: "T\u00E9l\u00E9ch.",
+      wifiUpShort: "Envoi",
+      langCurrent: "Langue actuelle : ",
+      langAvailable: "Disponibles : EN, TW, ID, FR, DE",
+      langSet: "Langue d\u00E9finie sur ",
+      langInvalid: "Code de langue inconnu. Disponibles : EN, TW, ID, FR, DE"
+    },
+    DE: {
+      bootHelp: "Brauchst du Hilfe? Tipp's einfach ein.",
+      descHelp: "zeigt dieses Fenster",
+      descName: "mein Name",
+      descBirth: "mein Geburtstag",
+      descWdyd: "was ich mache",
+      descEdu: "wo mein College ist",
+      descLinks: "ig, linkedin, github",
+      descWifi: "WLAN-Geschwindigkeitstest starten",
+      descClear: "leert den Bildschirm",
+      descTz: "Zeitzone \u00E4ndern, z. B. tz UTC+07:00",
+      descLang: "Sprache \u00E4ndern, z. B. lang DE",
+      helpTip: "Tipp: Gib einen Ausdruck wie 2*(3+4) ein, um ihn als Taschenrechner zu nutzen.",
+      wdyd1: "baue an @lagmite",
+      wdyd2: "code zum Spa\u00DF",
+      wdyd3: "nehme an Wettbewerben teil",
+      badCommand: "Unbekannter Befehl oder Dateiname.",
+      typeHelpHint: "Gib 'help' ein, um die Liste der verf\u00FCgbaren Befehle zu sehen.",
+      calcErrorPrefix: "Rechenfehler: ",
+      tzInvalid: "Ung\u00FCltiges Zeitzonenformat. Beispiel: tz UTC+07:00",
+      tzCurrent: "Aktuelle Zeitzone: ",
+      tzSet: "Zeitzone eingestellt auf ",
+      exitNotSupported: "Der Befehl EXIT wird in dieser Version nicht unterst\u00FCtzt.",
+      wifiRunning: "WLAN-Geschwindigkeitstest l\u00E4uft...",
+      wifiComplete: "WLAN-Geschwindigkeitstest abgeschlossen.",
+      wifiDownload: "Download: ",
+      wifiUpload: "Upload: ",
+      wifiOfflineErr: "WLAN ist offline.",
+      wifiConnected: "VERBUNDEN",
+      wifiOffline: "OFFLINE",
+      wifiTesting: "TESTE...",
+      wifiDownShort: "Down",
+      wifiUpShort: "Up",
+      langCurrent: "Aktuelle Sprache: ",
+      langAvailable: "Verf\u00FCgbar: EN, TW, ID, FR, DE",
+      langSet: "Sprache eingestellt auf ",
+      langInvalid: "Unbekannter Sprachcode. Verf\u00FCgbar: EN, TW, ID, FR, DE"
+    }
+  };
+
+  function t(key){
+    var dict = translations[currentLang] || translations.EN;
+    if (dict && Object.prototype.hasOwnProperty.call(dict, key)) return dict[key];
+    return (translations.EN && translations.EN[key]) || key;
+  }
+
+  function padCmd(cmd){
+    var s = cmd;
+    while (s.length < 6) s += ' ';
+    return s;
+  }
 
   function escapeHTML(str){
     return str.replace(/[&<>"]/g, function(ch){
@@ -652,18 +960,20 @@ body{
 
   var PROMPT = 'C:\\MATTHEW&gt;';
 
-  // banner content is kept separate so 'clear' can restore exactly this,
-  // instead of wiping it along with the rest of the screen
-  var bannerLines = [
-    { text:'PORTFOLIO-OS [Version 1.00]', cls:'heading' },
-    { text:'(C) Matthew Alexander Bintoro. All rights reserved.', cls:'dim' },
-    { blank:true },
-    { text:'Need help? Just type it.' },
-    { blank:true }
-  ];
+  // banner content is rebuilt from the current language every time it's
+  // needed, so 'clear' restores it in whichever language is active
+  function getBannerLines(){
+    return [
+      { text:'PORTFOLIO-OS [Version 1.00]', cls:'heading' },
+      { text:'(C) Matthew Alexander Bintoro. All rights reserved.', cls:'dim' },
+      { blank:true },
+      { text:t('bootHelp') },
+      { blank:true }
+    ];
+  }
 
   function bootSequence(){
-    bannerLines.forEach(function(l){
+    getBannerLines().forEach(function(l){
       if (l.blank) blank();
       else out(l.text, l.cls);
     });
@@ -674,7 +984,7 @@ body{
   // clear command itself (matching real MS-DOS behaviour)
   function resetToBanner(){
     output.innerHTML = '';
-    bannerLines.forEach(function(l){
+    getBannerLines().forEach(function(l){
       if (l.blank){
         var b = makeLineEl();
         b.innerHTML = '&nbsp;';
@@ -688,17 +998,18 @@ body{
 
   var commands = {
     help: function(){
-      out('help  - shows this window');
-      out('name  - my name');
-      out('birth - my birthday');
-      out('wdyd  - what i do');
-      out('edu   - where\'s my college');
-      out('links - ig, linkedin, github');
-      out('wifi  - run a WiFi speed test');
-      out('clear - clears the screen');
-      out('tz    - change timezone, e.g. tz UTC+07:00');
+      out(padCmd('help') + '- ' + t('descHelp'));
+      out(padCmd('name') + '- ' + t('descName'));
+      out(padCmd('birth') + '- ' + t('descBirth'));
+      out(padCmd('wdyd') + '- ' + t('descWdyd'));
+      out(padCmd('edu') + '- ' + t('descEdu'));
+      out(padCmd('links') + '- ' + t('descLinks'));
+      out(padCmd('wifi') + '- ' + t('descWifi'));
+      out(padCmd('clear') + '- ' + t('descClear'));
+      out(padCmd('tz') + '- ' + t('descTz'));
+      out(padCmd('lang') + '- ' + t('descLang'));
       blank();
-      out('Tip: type any expression like 2*(3+4) to use it as a calculator.', 'dim');
+      out(t('helpTip'), 'dim');
     },
     name: function(){
       out('Matthew Alexander Bintoro');
@@ -707,12 +1018,12 @@ body{
       out('1214320140');
     },
     wdyd: function(){
-      out('* building @lagmite');
-      out('* code for fun');
-      out('* do competitions');
+      out('* ' + t('wdyd1'));
+      out('* ' + t('wdyd2'));
+      out('* ' + t('wdyd3'));
     },
     edu: function(){
-      out('NTUT (國立臺北科技大學)');
+      out('NTUT (\u570B\u7ACB\u81FA\u5317\u79D1\u6280\u5927\u5B78)');
     },
     links: function(){
       outRaw('Instagram: <a href="https://www.instagram.com/matthew.alexander08/" target="_blank" rel="noopener noreferrer">@matthew.alexander08</a>');
@@ -720,31 +1031,45 @@ body{
       outRaw('GitHub: <a href="https://github.com/MaxOokA/" target="_blank" rel="noopener noreferrer">https://github.com/MaxOokA/</a>');
     },
     wifi: function(){
-      out('Running WiFi speed test...', 'dim');
+      out(t('wifiRunning'), 'dim');
       runWifiSpeedTest(function(speeds){
         if (!speeds){
-          out('WiFi is offline.', 'error');
+          out(t('wifiOfflineErr'), 'error');
           return;
         }
-        out('WiFi speed test complete.');
-        out('Download: ' + formatMbps(speeds.download));
-        out('Upload: ' + formatMbps(speeds.upload));
+        out(t('wifiComplete'));
+        out(t('wifiDownload') + formatMbps(speeds.download));
+        out(t('wifiUpload') + formatMbps(speeds.upload));
       });
     },
     tz: function(args){
       if (!args){
-        out('Current timezone: ' + formatOffsetLabel(tzOffsetMinutes));
+        out(t('tzCurrent') + formatOffsetLabel(tzOffsetMinutes));
         return;
       }
       var parsed = parseTimezoneOffset(args);
       if (parsed === null){
-        out('Invalid timezone format. Example: tz UTC+07:00', 'error');
+        out(t('tzInvalid'), 'error');
         return;
       }
       tzOffsetMinutes = parsed;
       updateClock();
       updateTzLabel();
-      out('Timezone set to ' + formatOffsetLabel(tzOffsetMinutes));
+      out(t('tzSet') + formatOffsetLabel(tzOffsetMinutes));
+    },
+    lang: function(args){
+      if (!args){
+        out(t('langCurrent') + langMeta[currentLang].flag + ' ' + currentLang + ' (' + langMeta[currentLang].name + ')');
+        out(t('langAvailable'), 'dim');
+        return;
+      }
+      var code = args.trim().toUpperCase();
+      if (!langMeta.hasOwnProperty(code)){
+        out(t('langInvalid'), 'error');
+        return;
+      }
+      switchLanguage(code);
+      out(t('langSet') + langMeta[code].name);
     }
   };
 
@@ -864,11 +1189,11 @@ body{
         var val = evaluateExpression(trimmed);
         out('= ' + formatNumber(val));
       } catch (e){
-        out('Calculator error: ' + e.message, 'error');
+        out(t('calcErrorPrefix') + e.message, 'error');
       }
     } else {
-      out('Bad command or file name.', 'error');
-      out('Type \'help\' for a list of available commands.', 'dim');
+      out(t('badCommand'), 'error');
+      out(t('typeHelpHint'), 'dim');
     }
     blank();
   }
@@ -930,7 +1255,7 @@ body{
       } else if (action === 'max'){
         terminal.classList.toggle('maximized');
       } else if (action === 'close'){
-        out('EXIT command not supported in this build.', 'error');
+        out(t('exitNotSupported'), 'error');
         scrollToBottom();
       }
     });
@@ -943,17 +1268,16 @@ body{
 
   // ---------- taskbar: clock + date ----------
 
-  var DOW = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  var MON = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-
   function updateClock(){
+    var dow = DOW_BY_LANG[currentLang] || DOW_BY_LANG.EN;
+    var mon = MON_BY_LANG[currentLang] || MON_BY_LANG.EN;
     var d = shiftedNow(tzOffsetMinutes);
     var h24 = d.getUTCHours();
     var ampm = h24 >= 12 ? 'PM' : 'AM';
     var h12 = h24 % 12;
     if (h12 === 0) h12 = 12;
     var timeStr = pad(h12) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds()) + ' ' + ampm;
-    var dateStr = DOW[d.getUTCDay()] + ' ' + pad(d.getUTCDate()) + ' ' + MON[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+    var dateStr = dow[d.getUTCDay()] + ' ' + pad(d.getUTCDate()) + ' ' + mon[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
     document.getElementById('clockLabel').textContent = timeStr;
     document.getElementById('dateLabel').textContent = dateStr;
   }
@@ -1005,9 +1329,62 @@ body{
 
   tzItem.addEventListener('click', openTzEditor);
 
-  // ---------- taskbar: connection status ----------
+  // ---------- taskbar: language switcher ----------
+
+  var langItem = document.getElementById('langItem');
+  var langMenu = document.getElementById('langMenu');
+  var langOptionButtons = Array.prototype.slice.call(document.querySelectorAll('.lang-option'));
+
+  function updateLangButton(){
+    var flagEl = document.getElementById('langFlag');
+    var codeEl = document.getElementById('langCodeLabel');
+    if (flagEl) flagEl.textContent = langMeta[currentLang].flag;
+    if (codeEl) codeEl.textContent = currentLang;
+    langOptionButtons.forEach(function(btn){
+      var code = btn.getAttribute('data-lang');
+      var isActive = code === currentLang;
+      btn.disabled = isActive;
+      btn.classList.toggle('active', isActive);
+    });
+  }
+
+  function switchLanguage(code){
+    if (!langMeta.hasOwnProperty(code)) return false;
+    currentLang = code;
+    updateLangButton();
+    updateClock();
+    refreshWifiLabelForLanguage();
+    return true;
+  }
+
+  updateLangButton();
+
+  langItem.addEventListener('click', function(e){
+    e.stopPropagation();
+    langMenu.hidden = !langMenu.hidden;
+  });
+
+  langOptionButtons.forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (btn.disabled) return;
+      var code = btn.getAttribute('data-lang');
+      switchLanguage(code);
+      out(t('langSet') + langMeta[code].name);
+      langMenu.hidden = true;
+    });
+  });
+
+  document.addEventListener('click', function(e){
+    if (!langItem.contains(e.target)){
+      langMenu.hidden = true;
+    }
+  });
+
+  // ---------- taskbar: connection status / wifi speed test ----------
 
   var wifiTestTimer = null;
+  var lastWifiSpeeds = null;
 
   function formatMbps(value){
     return (Math.round(value * 10) / 10).toFixed(1) + ' Mbps';
@@ -1016,6 +1393,18 @@ body{
   function setWifiLabel(text){
     var label = document.getElementById('wifiLabel');
     if (label) label.textContent = text;
+  }
+
+  function refreshWifiLabelForLanguage(){
+    var item = document.getElementById('wifiItem');
+    if (!item) return;
+    if (item.classList.contains('testing')){ setWifiLabel(t('wifiTesting')); return; }
+    if (!navigator.onLine){ setWifiLabel(t('wifiOffline')); return; }
+    if (lastWifiSpeeds){
+      setWifiLabel(t('wifiDownShort') + ' ' + formatMbps(lastWifiSpeeds.download) + ' / ' + t('wifiUpShort') + ' ' + formatMbps(lastWifiSpeeds.upload));
+    } else {
+      setWifiLabel(t('wifiConnected'));
+    }
   }
 
   function estimateWifiSpeeds(){
@@ -1036,7 +1425,7 @@ body{
     if (!item) return;
     if (!navigator.onLine){
       item.classList.remove('testing');
-      setWifiLabel('OFFLINE');
+      setWifiLabel(t('wifiOffline'));
       if (onComplete) onComplete(null);
       return;
     }
@@ -1047,12 +1436,13 @@ body{
     }
 
     item.classList.add('testing');
-    setWifiLabel('TESTING...');
+    setWifiLabel(t('wifiTesting'));
 
     wifiTestTimer = setTimeout(function(){
       var speeds = estimateWifiSpeeds();
+      lastWifiSpeeds = speeds;
       item.classList.remove('testing');
-      setWifiLabel('Down ' + formatMbps(speeds.download) + ' / Up ' + formatMbps(speeds.upload));
+      setWifiLabel(t('wifiDownShort') + ' ' + formatMbps(speeds.download) + ' / ' + t('wifiUpShort') + ' ' + formatMbps(speeds.upload));
       wifiTestTimer = null;
       if (onComplete) onComplete(speeds);
     }, 900);
@@ -1067,7 +1457,9 @@ body{
     if (navigator.onLine){
       item.classList.add('online');
       if (!item.classList.contains('testing')){
-        setWifiLabel('CONNECTED');
+        setWifiLabel(lastWifiSpeeds
+          ? t('wifiDownShort') + ' ' + formatMbps(lastWifiSpeeds.download) + ' / ' + t('wifiUpShort') + ' ' + formatMbps(lastWifiSpeeds.upload)
+          : t('wifiConnected'));
       }
     } else {
       item.classList.remove('online');
@@ -1076,7 +1468,7 @@ body{
         clearTimeout(wifiTestTimer);
         wifiTestTimer = null;
       }
-      setWifiLabel('OFFLINE');
+      setWifiLabel(t('wifiOffline'));
     }
   }
 
