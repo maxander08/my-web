@@ -445,19 +445,32 @@ body{
   color:var(--cyan);
 }
 
-#langFlag{ font-size:14px; line-height:1; }
+.flag-icon{
+  display:inline-flex;
+  flex:0 0 auto;
+  width:18px;
+  height:12px;
+  border:1px solid rgba(255,255,255,0.25);
+  overflow:hidden;
+  background:#000;
+  vertical-align:-2px;
+}
+
+.flag-icon svg{
+  width:100%;
+  height:100%;
+  display:block;
+}
 
 .lang-menu{
-  position:absolute;
-  bottom:calc(100% + 8px);
-  right:0;
+  position:fixed;
   display:flex;
   flex-direction:column;
   min-width:120px;
   background:#0b0c12;
   border:1px solid var(--cyan-dim);
   box-shadow:0 10px 28px rgba(0,0,0,0.6);
-  z-index:30;
+  z-index:1000;
 }
 
 .lang-menu[hidden]{ display:none; }
@@ -498,6 +511,15 @@ body{
 
 /* timestamp prefix shown before each echoed command in the output */
 .line .ts{ color:var(--text-dim); }
+
+.timer-line{
+  color:var(--amber);
+  font-size:18px;
+  letter-spacing:1px;
+}
+.timer-line.timer-done{
+  color:var(--red);
+}
 
 @media (max-width:560px){
   :root{ --win-w:96vw; --win-h:70vh; }
@@ -554,20 +576,21 @@ body{
   </div>
   <div class="taskbar-sep"></div>
   <div class="task-item lang-item" id="langItem" title="Change language">
-    <span id="langFlag">&#127468;&#127463;</span><span id="langCodeLabel">EN</span>
-    <div class="lang-menu" id="langMenu" hidden>
-      <button type="button" class="lang-option" data-lang="EN"><span>&#127468;&#127463;</span><span>EN</span></button>
-      <button type="button" class="lang-option" data-lang="TW"><span>&#127481;&#127484;</span><span>TW</span></button>
-      <button type="button" class="lang-option" data-lang="ID"><span>&#127470;&#127465;</span><span>ID</span></button>
-      <button type="button" class="lang-option" data-lang="FR"><span>&#127467;&#127479;</span><span>FR</span></button>
-      <button type="button" class="lang-option" data-lang="DE"><span>&#127465;&#127466;</span><span>DE</span></button>
-    </div>
+    <span class="flag-icon" id="langFlag"><svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#00247d"/><line x1="0" y1="0" x2="60" y2="40" stroke="#fff" stroke-width="8"/><line x1="60" y1="0" x2="0" y2="40" stroke="#fff" stroke-width="8"/><line x1="0" y1="0" x2="60" y2="40" stroke="#cf142b" stroke-width="3"/><line x1="60" y1="0" x2="0" y2="40" stroke="#cf142b" stroke-width="3"/><rect x="24" width="12" height="40" fill="#fff"/><rect y="14" width="60" height="12" fill="#fff"/><rect x="26" width="8" height="40" fill="#cf142b"/><rect y="16.5" width="60" height="7" fill="#cf142b"/></svg></span><span id="langCodeLabel">EN</span>
   </div>
   <div class="taskbar-sep"></div>
   <div class="task-item clock-block">
     <span id="dateLabel">WED 17 JUN 2026</span>
     <span id="clockLabel">00:00:00 AM</span>
   </div>
+</div>
+
+<div class="lang-menu" id="langMenu" hidden>
+  <button type="button" class="lang-option" data-lang="EN"><span class="flag-icon"><svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#00247d"/><line x1="0" y1="0" x2="60" y2="40" stroke="#fff" stroke-width="8"/><line x1="60" y1="0" x2="0" y2="40" stroke="#fff" stroke-width="8"/><line x1="0" y1="0" x2="60" y2="40" stroke="#cf142b" stroke-width="3"/><line x1="60" y1="0" x2="0" y2="40" stroke="#cf142b" stroke-width="3"/><rect x="24" width="12" height="40" fill="#fff"/><rect y="14" width="60" height="12" fill="#fff"/><rect x="26" width="8" height="40" fill="#cf142b"/><rect y="16.5" width="60" height="7" fill="#cf142b"/></svg></span><span>EN</span></button>
+  <button type="button" class="lang-option" data-lang="TW"><span class="flag-icon"><svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fe0000"/><rect width="30" height="20" fill="#000095"/><polygon fill="#fff" points="15.0,2.0 15.8,6.9 19.0,3.1 17.3,7.7 22.9,6.0 18.1,9.2 23.0,10.0 18.1,10.8 22.9,14.0 17.3,12.3 19.0,16.9 15.8,13.1 15.0,18.0 14.2,13.1 11.0,16.9 12.7,12.3 8.1,14.0 11.9,10.8 7.0,10.0 11.9,9.2 8.1,6.0 12.7,7.7 11.0,3.1 14.2,6.9"/></svg></span><span>TW</span></button>
+  <button type="button" class="lang-option" data-lang="ID"><span class="flag-icon"><svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="20" fill="#ff0000"/></svg></span><span>ID</span></button>
+  <button type="button" class="lang-option" data-lang="FR"><span class="flag-icon"><svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#0055a4"/><rect x="20" width="20" height="40" fill="#fff"/><rect x="40" width="20" height="40" fill="#ef4135"/></svg></span><span>FR</span></button>
+  <button type="button" class="lang-option" data-lang="DE"><span class="flag-icon"><svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#000"/><rect y="13.33" width="60" height="13.34" fill="#dd0000"/><rect y="26.67" width="60" height="13.33" fill="#ffce00"/></svg></span><span>DE</span></button>
 </div>
 
 <script>
@@ -593,11 +616,11 @@ body{
   var currentLang = 'EN';
 
   var langMeta = {
-    EN: { flag:'\uD83C\uDDEC\uD83C\uDDE7', name:'English' },
-    TW: { flag:'\uD83C\uDDF9\uD83C\uDDFC', name:'\u7E41\u9AD4\u4E2D\u6587' },
-    ID: { flag:'\uD83C\uDDEE\uD83C\uDDE9', name:'Bahasa Indonesia' },
-    FR: { flag:'\uD83C\uDDEB\uD83C\uDDF7', name:'Fran\u00E7ais' },
-    DE: { flag:'\uD83C\uDDE9\uD83C\uDDEA', name:'Deutsch' }
+    EN: { flag:'\uD83C\uDDEC\uD83C\uDDE7', name:'English', flagSvg:'<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#00247d"/><line x1="0" y1="0" x2="60" y2="40" stroke="#fff" stroke-width="8"/><line x1="60" y1="0" x2="0" y2="40" stroke="#fff" stroke-width="8"/><line x1="0" y1="0" x2="60" y2="40" stroke="#cf142b" stroke-width="3"/><line x1="60" y1="0" x2="0" y2="40" stroke="#cf142b" stroke-width="3"/><rect x="24" width="12" height="40" fill="#fff"/><rect y="14" width="60" height="12" fill="#fff"/><rect x="26" width="8" height="40" fill="#cf142b"/><rect y="16.5" width="60" height="7" fill="#cf142b"/></svg>' },
+    TW: { flag:'\uD83C\uDDF9\uD83C\uDDFC', name:'\u7E41\u9AD4\u4E2D\u6587', flagSvg:'<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fe0000"/><rect width="30" height="20" fill="#000095"/><polygon fill="#fff" points="15.0,2.0 15.8,6.9 19.0,3.1 17.3,7.7 22.9,6.0 18.1,9.2 23.0,10.0 18.1,10.8 22.9,14.0 17.3,12.3 19.0,16.9 15.8,13.1 15.0,18.0 14.2,13.1 11.0,16.9 12.7,12.3 8.1,14.0 11.9,10.8 7.0,10.0 11.9,9.2 8.1,6.0 12.7,7.7 11.0,3.1 14.2,6.9"/></svg>' },
+    ID: { flag:'\uD83C\uDDEE\uD83C\uDDE9', name:'Bahasa Indonesia', flagSvg:'<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="20" fill="#ff0000"/></svg>' },
+    FR: { flag:'\uD83C\uDDEB\uD83C\uDDF7', name:'Fran\u00E7ais', flagSvg:'<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#0055a4"/><rect x="20" width="20" height="40" fill="#fff"/><rect x="40" width="20" height="40" fill="#ef4135"/></svg>' },
+    DE: { flag:'\uD83C\uDDE9\uD83C\uDDEA', name:'Deutsch', flagSvg:'<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#000"/><rect y="13.33" width="60" height="13.34" fill="#dd0000"/><rect y="26.67" width="60" height="13.33" fill="#ffce00"/></svg>' }
   };
 
   var DOW_BY_LANG = {
@@ -629,6 +652,8 @@ body{
       descClear: "clears the screen",
       descTz: "change timezone, e.g. tz UTC+07:00",
       descLang: "change language, e.g. lang DE",
+      descTimer: "start a countdown timer, e.g. timer 00:01:30",
+      descSwatch: "start a stopwatch",
       helpTip: "Tip: type any expression like 2*(3+4) to use it as a calculator.",
       wdyd1: "building @lagmite",
       wdyd2: "code for fun",
@@ -653,7 +678,11 @@ body{
       langCurrent: "Current language: ",
       langAvailable: "Available: EN, TW, ID, FR, DE",
       langSet: "Language set to ",
-      langInvalid: "Unknown language code. Available: EN, TW, ID, FR, DE"
+      langInvalid: "Unknown language code. Available: EN, TW, ID, FR, DE",
+      timerInvalid: "Invalid duration. Use: timer HH:MM:SS",
+      timerStarted: "Timer started: ",
+      timerDone: "Time's up!",
+      swatchStarted: "Stopwatch started."
     },
     TW: {
       bootHelp: "\u9700\u8981\u5E6B\u52A9\uFF1F\u8F38\u5165\u6307\u4EE4\u5C31\u597D\u3002",
@@ -667,6 +696,8 @@ body{
       descClear: "\u6E05\u9664\u756B\u9762",
       descTz: "\u8B8A\u66F4\u6642\u5340\uFF0C\u4F8B\u5982 tz UTC+07:00",
       descLang: "\u8B8A\u66F4\u8A9E\u8A00\uFF0C\u4F8B\u5982 lang DE",
+      descTimer: "\u555F\u52D5\u5012\u6578\u8A08\u6642\u5668\uFF0C\u4F8B\u5982 timer 00:01:30",
+      descSwatch: "\u555F\u52D5\u78BC\u8868",
       helpTip: "\u63D0\u793A\uFF1A\u8F38\u5165\u50CF 2*(3+4) \u9019\u6A23\u7684\u7B97\u5F0F\u5373\u53EF\u7576\u8A08\u7B97\u6A5F\u4F7F\u7528\u3002",
       wdyd1: "\u6B63\u5728\u958B\u767C @lagmite",
       wdyd2: "\u70BA\u4E50\u8DA3\u5BEB\u7A0B\u5F0F",
@@ -691,7 +722,11 @@ body{
       langCurrent: "\u76EE\u524D\u8A9E\u8A00\uFF1A",
       langAvailable: "\u53EF\u7528\uFF1AEN, TW, ID, FR, DE",
       langSet: "\u8A9E\u8A00\u5DF2\u8A2D\u5B9A\u70BA ",
-      langInvalid: "\u4E0D\u660E\u7684\u8A9E\u8A00\u4EE3\u78BC\u3002\u53EF\u7528\uFF1AEN, TW, ID, FR, DE"
+      langInvalid: "\u4E0D\u660E\u7684\u8A9E\u8A00\u4EE3\u78BC\u3002\u53EF\u7528\uFF1AEN, TW, ID, FR, DE",
+      timerInvalid: "\u6642\u9593\u683C\u5F0F\u932F\u8AA4\uFF0C\u8ACB\u4F7F\u7528\uFF1Atimer HH:MM:SS",
+      timerStarted: "\u8A08\u6642\u5668\u5DF2\u555F\u52D5\uFF1A",
+      timerDone: "\u6642\u9593\u5230\uFF01",
+      swatchStarted: "\u78BC\u8868\u5DF2\u555F\u52D5\u3002"
     },
     ID: {
       bootHelp: "Butuh bantuan? Tinggal ketik saja.",
@@ -705,6 +740,8 @@ body{
       descClear: "membersihkan layar",
       descTz: "ubah zona waktu, contoh tz UTC+07:00",
       descLang: "ubah bahasa, contoh lang DE",
+      descTimer: "mulai timer hitung mundur, contoh timer 00:01:30",
+      descSwatch: "mulai stopwatch",
       helpTip: "Tips: ketik ekspresi seperti 2*(3+4) untuk menggunakannya sebagai kalkulator.",
       wdyd1: "membangun @lagmite",
       wdyd2: "ngoding untuk hobi",
@@ -729,7 +766,11 @@ body{
       langCurrent: "Bahasa saat ini: ",
       langAvailable: "Tersedia: EN, TW, ID, FR, DE",
       langSet: "Bahasa diatur ke ",
-      langInvalid: "Kode bahasa tidak dikenali. Tersedia: EN, TW, ID, FR, DE"
+      langInvalid: "Kode bahasa tidak dikenali. Tersedia: EN, TW, ID, FR, DE",
+      timerInvalid: "Format durasi tidak valid. Gunakan: timer HH:MM:SS",
+      timerStarted: "Timer dimulai: ",
+      timerDone: "Waktu habis!",
+      swatchStarted: "Stopwatch dimulai."
     },
     FR: {
       bootHelp: "Besoin d'aide ? Tape-la, c'est tout.",
@@ -743,6 +784,8 @@ body{
       descClear: "efface l'\u00E9cran",
       descTz: "changer le fuseau horaire, ex. tz UTC+07:00",
       descLang: "changer la langue, ex. lang DE",
+      descTimer: "d\u00E9marrer un minuteur, ex. timer 00:01:30",
+      descSwatch: "d\u00E9marrer un chronom\u00E8tre",
       helpTip: "Astuce : tape une expression comme 2*(3+4) pour l'utiliser comme calculatrice.",
       wdyd1: "je d\u00E9veloppe @lagmite",
       wdyd2: "je code pour le plaisir",
@@ -767,7 +810,11 @@ body{
       langCurrent: "Langue actuelle : ",
       langAvailable: "Disponibles : EN, TW, ID, FR, DE",
       langSet: "Langue d\u00E9finie sur ",
-      langInvalid: "Code de langue inconnu. Disponibles : EN, TW, ID, FR, DE"
+      langInvalid: "Code de langue inconnu. Disponibles : EN, TW, ID, FR, DE",
+      timerInvalid: "Dur\u00E9e invalide. Utilise : timer HH:MM:SS",
+      timerStarted: "Minuteur d\u00E9marr\u00E9 : ",
+      timerDone: "Le temps est \u00E9coul\u00E9 !",
+      swatchStarted: "Chronom\u00E8tre d\u00E9marr\u00E9."
     },
     DE: {
       bootHelp: "Brauchst du Hilfe? Tipp's einfach ein.",
@@ -781,6 +828,8 @@ body{
       descClear: "leert den Bildschirm",
       descTz: "Zeitzone \u00E4ndern, z. B. tz UTC+07:00",
       descLang: "Sprache \u00E4ndern, z. B. lang DE",
+      descTimer: "Countdown-Timer starten, z. B. timer 00:01:30",
+      descSwatch: "Stoppuhr starten",
       helpTip: "Tipp: Gib einen Ausdruck wie 2*(3+4) ein, um ihn als Taschenrechner zu nutzen.",
       wdyd1: "baue an @lagmite",
       wdyd2: "code zum Spa\u00DF",
@@ -805,7 +854,11 @@ body{
       langCurrent: "Aktuelle Sprache: ",
       langAvailable: "Verf\u00FCgbar: EN, TW, ID, FR, DE",
       langSet: "Sprache eingestellt auf ",
-      langInvalid: "Unbekannter Sprachcode. Verf\u00FCgbar: EN, TW, ID, FR, DE"
+      langInvalid: "Unbekannter Sprachcode. Verf\u00FCgbar: EN, TW, ID, FR, DE",
+      timerInvalid: "Ung\u00FCltige Dauer. Verwende: timer HH:MM:SS",
+      timerStarted: "Timer gestartet: ",
+      timerDone: "Die Zeit ist abgelaufen!",
+      swatchStarted: "Stoppuhr gestartet."
     }
   };
 
@@ -817,7 +870,7 @@ body{
 
   function padCmd(cmd){
     var s = cmd;
-    while (s.length < 6) s += ' ';
+    while (s.length < 7) s += ' ';
     return s;
   }
 
@@ -839,6 +892,41 @@ body{
   }
 
   function pad(n){ return n < 10 ? '0' + n : '' + n; }
+  function pad3(n){ return n < 10 ? '00' + n : (n < 100 ? '0' + n : '' + n); }
+
+  // formats a millisecond duration as HH:MM:SS:mmm (used by the live timer/stopwatch lines)
+  function formatHMSms(ms){
+    var totalMs = Math.max(0, Math.floor(ms));
+    var milliseconds = totalMs % 1000;
+    var totalSeconds = Math.floor(totalMs / 1000);
+    var seconds = totalSeconds % 60;
+    var totalMinutes = Math.floor(totalSeconds / 60);
+    var minutes = totalMinutes % 60;
+    var hours = Math.floor(totalMinutes / 60);
+    return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds) + ':' + pad3(milliseconds);
+  }
+
+  // formats a whole-second duration as HH:MM:SS (used to echo back a parsed 'timer' argument)
+  function formatHMS(totalSeconds){
+    var seconds = totalSeconds % 60;
+    var totalMinutes = Math.floor(totalSeconds / 60);
+    var minutes = totalMinutes % 60;
+    var hours = Math.floor(totalMinutes / 60);
+    return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+  }
+
+  // parses a 'HH:MM:SS' duration string into milliseconds, or null if invalid
+  function parseDurationHMS(str){
+    if (!str) return null;
+    var parts = str.trim().split(':');
+    if (parts.length !== 3) return null;
+    var h = parseInt(parts[0], 10);
+    var m = parseInt(parts[1], 10);
+    var s = parseInt(parts[2], 10);
+    if (isNaN(h) || isNaN(m) || isNaN(s)) return null;
+    if (h < 0 || m < 0 || s < 0 || m > 59 || s > 59) return null;
+    return ((h * 60 + m) * 60 + s) * 1000;
+  }
 
   // ---------- timezone helpers ----------
 
@@ -939,6 +1027,12 @@ body{
       scrollToBottom();
       return Promise.resolve();
     }
+    if (item.type === 'live'){
+      // starts immediately, then keeps updating on its own; the queue
+      // doesn't wait for it, it just guarantees correct ordering on entry
+      item.start();
+      return Promise.resolve();
+    }
     // animated text line
     var div = makeLineEl(item.cls);
     var html = linkify(escapeHTML(item.text));
@@ -954,8 +1048,81 @@ body{
     enqueue({ type:'raw', html: html, cls: cls });
   }
 
+  // schedules a live-updating line (timer/stopwatch); startFn creates the
+  // line and kicks off its own update loop
+  function enqueueLive(startFn){
+    enqueue({ type:'live', start:startFn });
+  }
+
+  // wraps a language's SVG flag for inline use in raw terminal output
+  function flagIconHTML(code){
+    var meta = langMeta[code];
+    return '<span class="flag-icon">' + (meta ? meta.flagSvg : '') + '</span>';
+  }
+
   function blank(){
     enqueue({ type:'blank' });
+  }
+
+  // ---------- live timer / stopwatch displays ----------
+  // tracked separately from the typing queue so 'clear' can stop them
+  // cleanly instead of leaving rAF loops ticking against a detached line
+
+  var activeLiveDisplays = [];
+
+  function stopAllLiveDisplays(){
+    activeLiveDisplays.forEach(function(d){ d.stop(); });
+    activeLiveDisplays = [];
+  }
+
+  function startCountdown(totalMs){
+    return function(){
+      var div = makeLineEl('timer-line');
+      var endTime = Date.now() + totalMs;
+      var rafId = null;
+      var done = false;
+
+      function tick(){
+        var remaining = endTime - Date.now();
+        if (remaining <= 0){
+          div.textContent = formatHMSms(0);
+          div.classList.add('timer-done');
+          done = true;
+          out(t('timerDone'));
+          return;
+        }
+        div.textContent = formatHMSms(remaining);
+        rafId = requestAnimationFrame(tick);
+      }
+      tick();
+      scrollToBottom();
+
+      activeLiveDisplays.push({
+        stop: function(){
+          if (rafId) cancelAnimationFrame(rafId);
+          done = true;
+        }
+      });
+    };
+  }
+
+  function startStopwatch(){
+    var div = makeLineEl('timer-line');
+    var startTime = Date.now();
+    var rafId = null;
+
+    function tick(){
+      div.textContent = formatHMSms(Date.now() - startTime);
+      rafId = requestAnimationFrame(tick);
+    }
+    tick();
+    scrollToBottom();
+
+    activeLiveDisplays.push({
+      stop: function(){
+        if (rafId) cancelAnimationFrame(rafId);
+      }
+    });
   }
 
   var PROMPT = 'C:\\MATTHEW&gt;';
@@ -1008,6 +1175,8 @@ body{
       out(padCmd('clear') + '- ' + t('descClear'));
       out(padCmd('tz') + '- ' + t('descTz'));
       out(padCmd('lang') + '- ' + t('descLang'));
+      out(padCmd('timer') + '- ' + t('descTimer'));
+      out(padCmd('swatch') + '- ' + t('descSwatch'));
       blank();
       out(t('helpTip'), 'dim');
     },
@@ -1059,7 +1228,7 @@ body{
     },
     lang: function(args){
       if (!args){
-        out(t('langCurrent') + langMeta[currentLang].flag + ' ' + currentLang + ' (' + langMeta[currentLang].name + ')');
+        outRaw(escapeHTML(t('langCurrent')) + flagIconHTML(currentLang) + ' ' + escapeHTML(currentLang + ' (' + langMeta[currentLang].name + ')'));
         out(t('langAvailable'), 'dim');
         return;
       }
@@ -1069,7 +1238,20 @@ body{
         return;
       }
       switchLanguage(code);
-      out(t('langSet') + langMeta[code].name);
+      outRaw(escapeHTML(t('langSet')) + flagIconHTML(code) + ' ' + escapeHTML(langMeta[code].name));
+    },
+    timer: function(args){
+      var ms = parseDurationHMS(args);
+      if (ms === null || ms <= 0){
+        out(t('timerInvalid'), 'error');
+        return;
+      }
+      out(t('timerStarted') + formatHMS(Math.round(ms / 1000)));
+      enqueueLive(startCountdown(ms));
+    },
+    swatch: function(){
+      out(t('swatchStarted'));
+      enqueueLive(startStopwatch);
     }
   };
 
@@ -1167,6 +1349,7 @@ body{
       renderQueue.length = 0;
       queueRunning = false;
       queueToken++;
+      stopAllLiveDisplays();
       resetToBanner();
       return;
     }
@@ -1338,7 +1521,7 @@ body{
   function updateLangButton(){
     var flagEl = document.getElementById('langFlag');
     var codeEl = document.getElementById('langCodeLabel');
-    if (flagEl) flagEl.textContent = langMeta[currentLang].flag;
+    if (flagEl) flagEl.innerHTML = langMeta[currentLang].flagSvg;
     if (codeEl) codeEl.textContent = currentLang;
     langOptionButtons.forEach(function(btn){
       var code = btn.getAttribute('data-lang');
@@ -1359,9 +1542,17 @@ body{
 
   updateLangButton();
 
+  function positionLangMenu(){
+    var rect = langItem.getBoundingClientRect();
+    langMenu.style.right = (window.innerWidth - rect.right) + 'px';
+    langMenu.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+  }
+
   langItem.addEventListener('click', function(e){
     e.stopPropagation();
-    langMenu.hidden = !langMenu.hidden;
+    var willOpen = langMenu.hidden;
+    if (willOpen){ positionLangMenu(); }
+    langMenu.hidden = !willOpen;
   });
 
   langOptionButtons.forEach(function(btn){
@@ -1370,13 +1561,17 @@ body{
       if (btn.disabled) return;
       var code = btn.getAttribute('data-lang');
       switchLanguage(code);
-      out(t('langSet') + langMeta[code].name);
+      outRaw(escapeHTML(t('langSet')) + flagIconHTML(code) + ' ' + escapeHTML(langMeta[code].name));
       langMenu.hidden = true;
     });
   });
 
+  window.addEventListener('resize', function(){
+    if (!langMenu.hidden) positionLangMenu();
+  });
+
   document.addEventListener('click', function(e){
-    if (!langItem.contains(e.target)){
+    if (!langItem.contains(e.target) && !langMenu.contains(e.target)){
       langMenu.hidden = true;
     }
   });
