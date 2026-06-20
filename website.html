@@ -507,7 +507,28 @@ body{
 }
 
 #dateLabel{ color:var(--text-dim); }
-#clockLabel{ color:var(--text-bright); min-width:78px; text-align:right; }
+#clockLabel{ color:var(--text-bright); text-align:right; }
+
+.clock-btn{
+  height:24px;
+  display:inline-flex;
+  align-items:center;
+  width:auto;
+  padding:0 8px;
+  background:#11151f;
+  border:1px solid var(--taskbar-border);
+  color:var(--text-bright);
+  font-family:inherit;
+  font-size:13px;
+  cursor:pointer;
+  flex:0 0 auto;
+  white-space:nowrap;
+  transition:padding .12s ease;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.clock-btn #clockLabel{ min-width:0; }
 
 /* timestamp prefix shown before each echoed command in the output */
 .line .ts{ color:var(--text-dim); }
@@ -581,8 +602,15 @@ body{
   <div class="taskbar-sep"></div>
   <div class="task-item clock-block">
     <span id="dateLabel">WED 17 JUN 2026</span>
-    <span id="clockLabel">00:00:00 AM</span>
+    <button type="button" class="taskbar-button clock-btn" id="clockItem" title="Click to change time format">
+      <span id="clockLabel">00:00:00</span>
+    </button>
   </div>
+</div>
+
+<div class="lang-menu" id="clockMenu" hidden>
+  <button type="button" class="lang-option" data-clock="24"><span>24-hour</span></button>
+  <button type="button" class="lang-option" data-clock="12"><span>12-hour</span></button>
 </div>
 
 <div class="lang-menu" id="langMenu" hidden>
@@ -654,6 +682,9 @@ body{
       descLang: "change language, e.g. lang DE",
       descTimer: "start a countdown timer, e.g. timer 00:01:30",
       descSwatch: "start a stopwatch",
+      descStop: "stop running timers/stopwatches, e.g. stop timer",
+      descIp: "show your IP address and location",
+      descConvert: "convert currency or units, e.g. convert 1 USD to IDR or convert 100 km to mi",
       helpTip: "Tip: type any expression like 2*(3+4) to use it as a calculator.",
       wdyd1: "building @lagmite",
       wdyd2: "code for fun",
@@ -682,7 +713,25 @@ body{
       timerInvalid: "Invalid duration. Use: timer HH:MM:SS",
       timerStarted: "Timer started: ",
       timerDone: "Time's up!",
-      swatchStarted: "Stopwatch started."
+      swatchStarted: "Stopwatch started.",
+      stopTimers: "Timer(s) stopped.",
+      stopSwatches: "Stopwatch(es) stopped.",
+      stopAll: "All timers and stopwatches stopped.",
+      stopNone: "Nothing is running.",
+      ipLooking: "Looking up your IP address...",
+      ipAddress: "IP Address: ",
+      ipLocation: "Location: ",
+      ipPostal: "Postal: ",
+      ipTimezone: "Timezone: ",
+      ipIsp: "ISP: ",
+      ipError: "Could not retrieve IP information.",
+      convertUsage: "Usage: convert <amount> <FROM> to <TO>, e.g. convert 1 USD to IDR",
+      convertLooking: "Fetching latest exchange rates...",
+      convertRate: "Rate: ",
+      convertUpdated: "Updated: ",
+      convertBadCurrency: "Unknown currency code: ",
+      convertError: "Could not retrieve exchange rates.",
+      convertUnitMismatch: "Those units aren't the same kind of measurement."
     },
     TW: {
       bootHelp: "\u9700\u8981\u5E6B\u52A9\uFF1F\u8F38\u5165\u6307\u4EE4\u5C31\u597D\u3002",
@@ -698,6 +747,9 @@ body{
       descLang: "\u8B8A\u66F4\u8A9E\u8A00\uFF0C\u4F8B\u5982 lang DE",
       descTimer: "\u555F\u52D5\u5012\u6578\u8A08\u6642\u5668\uFF0C\u4F8B\u5982 timer 00:01:30",
       descSwatch: "\u555F\u52D5\u78BC\u8868",
+      descStop: "\u505C\u6B62\u57F7\u884C\u4E2D\u7684\u8A08\u6642\u5668/\u78BC\u8868\uFF0C\u4F8B\u5982 stop timer",
+      descIp: "\u986F\u793A\u4F60\u7684 IP \u4F4D\u5740\u548C\u4F4D\u7F6E",
+      descConvert: "\u8CA8\u5E63\u6216\u55AE\u4F4D\u63DB\u7B97\uFF0C\u4F8B\u5982 convert 1 USD to IDR \u6216 convert 100 km to mi",
       helpTip: "\u63D0\u793A\uFF1A\u8F38\u5165\u50CF 2*(3+4) \u9019\u6A23\u7684\u7B97\u5F0F\u5373\u53EF\u7576\u8A08\u7B97\u6A5F\u4F7F\u7528\u3002",
       wdyd1: "\u6B63\u5728\u958B\u767C @lagmite",
       wdyd2: "\u70BA\u4E50\u8DA3\u5BEB\u7A0B\u5F0F",
@@ -726,7 +778,25 @@ body{
       timerInvalid: "\u6642\u9593\u683C\u5F0F\u932F\u8AA4\uFF0C\u8ACB\u4F7F\u7528\uFF1Atimer HH:MM:SS",
       timerStarted: "\u8A08\u6642\u5668\u5DF2\u555F\u52D5\uFF1A",
       timerDone: "\u6642\u9593\u5230\uFF01",
-      swatchStarted: "\u78BC\u8868\u5DF2\u555F\u52D5\u3002"
+      swatchStarted: "\u78BC\u8868\u5DF2\u555F\u52D5\u3002",
+      stopTimers: "\u8A08\u6642\u5668\u5DF2\u505C\u6B62\u3002",
+      stopSwatches: "\u78BC\u8868\u5DF2\u505C\u6B62\u3002",
+      stopAll: "\u6240\u6709\u8A08\u6642\u5668\u548C\u78BC\u8868\u5DF2\u505C\u6B62\u3002",
+      stopNone: "\u6C92\u6709\u6B63\u5728\u57F7\u884C\u7684\u9805\u76EE\u3002",
+      ipLooking: "\u6B63\u5728\u67E5\u8A62\u4F60\u7684 IP \u4F4D\u5740\u2026",
+      ipAddress: "IP \u4F4D\u5740\uFF1A",
+      ipLocation: "\u4F4D\u7F6E\uFF1A",
+      ipPostal: "\u90F5\u905E\u5340\u865F\uFF1A",
+      ipTimezone: "\u6642\u5340\uFF1A",
+      ipIsp: "\u7DB2\u8DEF\u4F9B\u61C9\u5546\uFF1A",
+      ipError: "\u7121\u6CD5\u53D6\u5F97 IP \u8CC7\u8A0A\u3002",
+      convertUsage: "\u7528\u6CD5\uFF1Aconvert <\u91D1\u984D> <\u4F86\u6E90> to <\u76EE\u6A19>\uFF0C\u4F8B\u5982 convert 1 USD to IDR",
+      convertLooking: "\u6B63\u5728\u53D6\u5F97\u6700\u65B0\u532F\u7387\u2026",
+      convertRate: "\u532F\u7387\uFF1A",
+      convertUpdated: "\u66F4\u65B0\u6642\u9593\uFF1A",
+      convertBadCurrency: "\u4E0D\u660E\u7684\u8CA8\u5E63\u4EE3\u78BC\uFF1A",
+      convertError: "\u7121\u6CD5\u53D6\u5F97\u532F\u7387\u3002",
+      convertUnitMismatch: "\u9019\u5169\u500B\u55AE\u4F4D\u4E0D\u662F\u540C\u4E00\u985E\u578B\u7684\u6E2C\u91CF\u3002"
     },
     ID: {
       bootHelp: "Butuh bantuan? Tinggal ketik saja.",
@@ -742,6 +812,9 @@ body{
       descLang: "ubah bahasa, contoh lang DE",
       descTimer: "mulai timer hitung mundur, contoh timer 00:01:30",
       descSwatch: "mulai stopwatch",
+      descStop: "hentikan timer/stopwatch yang berjalan, contoh stop timer",
+      descIp: "tampilkan alamat IP dan lokasimu",
+      descConvert: "konversi mata uang atau satuan, contoh convert 1 USD to IDR atau convert 100 km to mi",
       helpTip: "Tips: ketik ekspresi seperti 2*(3+4) untuk menggunakannya sebagai kalkulator.",
       wdyd1: "membangun @lagmite",
       wdyd2: "ngoding untuk hobi",
@@ -770,7 +843,25 @@ body{
       timerInvalid: "Format durasi tidak valid. Gunakan: timer HH:MM:SS",
       timerStarted: "Timer dimulai: ",
       timerDone: "Waktu habis!",
-      swatchStarted: "Stopwatch dimulai."
+      swatchStarted: "Stopwatch dimulai.",
+      stopTimers: "Timer dihentikan.",
+      stopSwatches: "Stopwatch dihentikan.",
+      stopAll: "Semua timer dan stopwatch dihentikan.",
+      stopNone: "Tidak ada yang sedang berjalan.",
+      ipLooking: "Mencari alamat IP-mu...",
+      ipAddress: "Alamat IP: ",
+      ipLocation: "Lokasi: ",
+      ipPostal: "Kode Pos: ",
+      ipTimezone: "Zona Waktu: ",
+      ipIsp: "ISP: ",
+      ipError: "Tidak dapat mengambil informasi IP.",
+      convertUsage: "Penggunaan: convert <jumlah> <DARI> to <KE>, contoh convert 1 USD to IDR",
+      convertLooking: "Mengambil kurs terbaru...",
+      convertRate: "Kurs: ",
+      convertUpdated: "Diperbarui: ",
+      convertBadCurrency: "Kode mata uang tidak dikenali: ",
+      convertError: "Tidak dapat mengambil kurs.",
+      convertUnitMismatch: "Satuan tersebut bukan jenis pengukuran yang sama."
     },
     FR: {
       bootHelp: "Besoin d'aide ? Tape-la, c'est tout.",
@@ -786,6 +877,9 @@ body{
       descLang: "changer la langue, ex. lang DE",
       descTimer: "d\u00E9marrer un minuteur, ex. timer 00:01:30",
       descSwatch: "d\u00E9marrer un chronom\u00E8tre",
+      descStop: "arr\u00EAter les minuteurs/chronom\u00E8tres en cours, ex. stop timer",
+      descIp: "affiche ton adresse IP et ta localisation",
+      descConvert: "convertir une devise ou des unit\u00E9s, ex. convert 1 USD to IDR ou convert 100 km to mi",
       helpTip: "Astuce : tape une expression comme 2*(3+4) pour l'utiliser comme calculatrice.",
       wdyd1: "je d\u00E9veloppe @lagmite",
       wdyd2: "je code pour le plaisir",
@@ -814,7 +908,25 @@ body{
       timerInvalid: "Dur\u00E9e invalide. Utilise : timer HH:MM:SS",
       timerStarted: "Minuteur d\u00E9marr\u00E9 : ",
       timerDone: "Le temps est \u00E9coul\u00E9 !",
-      swatchStarted: "Chronom\u00E8tre d\u00E9marr\u00E9."
+      swatchStarted: "Chronom\u00E8tre d\u00E9marr\u00E9.",
+      stopTimers: "Minuteur(s) arr\u00EAt\u00E9(s).",
+      stopSwatches: "Chronom\u00E8tre(s) arr\u00EAt\u00E9(s).",
+      stopAll: "Tous les minuteurs et chronom\u00E8tres ont \u00E9t\u00E9 arr\u00EAt\u00E9s.",
+      stopNone: "Rien n'est en cours.",
+      ipLooking: "Recherche de ton adresse IP...",
+      ipAddress: "Adresse IP : ",
+      ipLocation: "Localisation : ",
+      ipPostal: "Code postal : ",
+      ipTimezone: "Fuseau horaire : ",
+      ipIsp: "FAI : ",
+      ipError: "Impossible de r\u00E9cup\u00E9rer les informations IP.",
+      convertUsage: "Usage : convert <montant> <DE> to <VERS>, ex. convert 1 USD to IDR",
+      convertLooking: "R\u00E9cup\u00E9ration des derniers taux de change...",
+      convertRate: "Taux : ",
+      convertUpdated: "Mis \u00E0 jour : ",
+      convertBadCurrency: "Code de devise inconnu : ",
+      convertError: "Impossible de r\u00E9cup\u00E9rer les taux de change.",
+      convertUnitMismatch: "Ces unit\u00E9s ne sont pas du m\u00EAme type de mesure."
     },
     DE: {
       bootHelp: "Brauchst du Hilfe? Tipp's einfach ein.",
@@ -830,6 +942,9 @@ body{
       descLang: "Sprache \u00E4ndern, z. B. lang DE",
       descTimer: "Countdown-Timer starten, z. B. timer 00:01:30",
       descSwatch: "Stoppuhr starten",
+      descStop: "laufende Timer/Stoppuhren stoppen, z. B. stop timer",
+      descIp: "deine IP-Adresse und deinen Standort anzeigen",
+      descConvert: "W\u00E4hrung oder Einheiten umrechnen, z. B. convert 1 USD to IDR oder convert 100 km to mi",
       helpTip: "Tipp: Gib einen Ausdruck wie 2*(3+4) ein, um ihn als Taschenrechner zu nutzen.",
       wdyd1: "baue an @lagmite",
       wdyd2: "code zum Spa\u00DF",
@@ -858,7 +973,25 @@ body{
       timerInvalid: "Ung\u00FCltige Dauer. Verwende: timer HH:MM:SS",
       timerStarted: "Timer gestartet: ",
       timerDone: "Die Zeit ist abgelaufen!",
-      swatchStarted: "Stoppuhr gestartet."
+      swatchStarted: "Stoppuhr gestartet.",
+      stopTimers: "Timer gestoppt.",
+      stopSwatches: "Stoppuhr(en) gestoppt.",
+      stopAll: "Alle Timer und Stoppuhren gestoppt.",
+      stopNone: "Es l\u00E4uft nichts.",
+      ipLooking: "Suche deine IP-Adresse...",
+      ipAddress: "IP-Adresse: ",
+      ipLocation: "Standort: ",
+      ipPostal: "PLZ: ",
+      ipTimezone: "Zeitzone: ",
+      ipIsp: "ISP: ",
+      ipError: "IP-Informationen konnten nicht abgerufen werden.",
+      convertUsage: "Verwendung: convert <Betrag> <VON> to <NACH>, z. B. convert 1 USD to IDR",
+      convertLooking: "Aktuelle Wechselkurse werden abgerufen...",
+      convertRate: "Kurs: ",
+      convertUpdated: "Aktualisiert: ",
+      convertBadCurrency: "Unbekannter W\u00E4hrungscode: ",
+      convertError: "Wechselkurse konnten nicht abgerufen werden.",
+      convertUnitMismatch: "Diese Einheiten sind nicht dieselbe Art von Messung."
     }
   };
 
@@ -1075,6 +1208,23 @@ body{
     activeLiveDisplays = [];
   }
 
+  // stops only the live displays of a given kind ('timer' or 'swatch'),
+  // or all of them when kind is omitted; returns how many were stopped
+  function stopLiveDisplaysByKind(kind){
+    var stopped = 0;
+    var remaining = [];
+    activeLiveDisplays.forEach(function(d){
+      if (!kind || d.kind === kind){
+        d.stop();
+        stopped++;
+      } else {
+        remaining.push(d);
+      }
+    });
+    activeLiveDisplays = remaining;
+    return stopped;
+  }
+
   function startCountdown(totalMs){
     return function(){
       var div = makeLineEl('timer-line');
@@ -1098,6 +1248,7 @@ body{
       scrollToBottom();
 
       activeLiveDisplays.push({
+        kind: 'timer',
         stop: function(){
           if (rafId) cancelAnimationFrame(rafId);
           done = true;
@@ -1119,6 +1270,7 @@ body{
     scrollToBottom();
 
     activeLiveDisplays.push({
+      kind: 'swatch',
       stop: function(){
         if (rafId) cancelAnimationFrame(rafId);
       }
@@ -1177,6 +1329,9 @@ body{
       out(padCmd('lang') + '- ' + t('descLang'));
       out(padCmd('timer') + '- ' + t('descTimer'));
       out(padCmd('swatch') + '- ' + t('descSwatch'));
+      out(padCmd('stop') + '- ' + t('descStop'));
+      out(padCmd('ip') + '- ' + t('descIp'));
+      out(padCmd('convert') + '- ' + t('descConvert'));
       blank();
       out(t('helpTip'), 'dim');
     },
@@ -1252,6 +1407,109 @@ body{
     swatch: function(){
       out(t('swatchStarted'));
       enqueueLive(startStopwatch);
+    },
+    stop: function(args){
+      var target = (args || '').trim().toLowerCase();
+      var kind = null;
+      if (target === 'timer' || target === 'timers'){ kind = 'timer'; }
+      else if (target === 'swatch' || target === 'stopwatch' || target === 'swatches'){ kind = 'swatch'; }
+      var stopped = stopLiveDisplaysByKind(kind);
+      if (stopped === 0){
+        out(t('stopNone'), 'dim');
+        return;
+      }
+      if (kind === 'timer'){ out(t('stopTimers')); }
+      else if (kind === 'swatch'){ out(t('stopSwatches')); }
+      else { out(t('stopAll')); }
+    },
+    ip: function(){
+      out(t('ipLooking'), 'dim');
+      lookupIpInfo(function(info){
+        if (!info){
+          out(t('ipError'), 'error');
+          return;
+        }
+        if (info.ip){ out(t('ipAddress') + info.ip); }
+
+        // build a 'City, Region, Country' location string from whatever fields are present
+        var locParts = [];
+        if (info.city) locParts.push(info.city);
+        if (info.region) locParts.push(info.region);
+        if (info.country_name) locParts.push(info.country_name);
+        var locText = locParts.join(', ');
+
+        // prefix the location line with an SVG flag for the country code
+        var cc = (info.country_code || info.country || '').toUpperCase();
+        var flag = cc ? countryFlagHTML(cc) + ' ' : '';
+        outRaw(escapeHTML(t('ipLocation')) + flag + escapeHTML(locText));
+
+        if (info.postal){ out(t('ipPostal') + info.postal); }
+        if (info.timezone){ out(t('ipTimezone') + info.timezone); }
+        if (info.org || info.isp){ out(t('ipIsp') + (info.org || info.isp)); }
+      });
+    },
+    convert: function(args){
+      // syntax: 'convert <amount> <FROM> [to] <TO>'
+      // FROM/TO may be multi-word unit names (e.g. 'degrees Celsius') or
+      // single tokens (currency codes, unit symbols like km, m/s, m2)
+      var raw = (args || '').trim();
+      var m = raw.match(/^(-?[0-9]*\.?[0-9]+)\s+(.+?)\s+to\s+(.+)$/i);
+      if (!m){
+        // fall back to a no-'to' form: 'convert 1 USD IDR'
+        m = raw.match(/^(-?[0-9]*\.?[0-9]+)\s+(\S+)\s+(\S+)$/);
+      }
+      if (!m){
+        out(t('convertUsage'), 'error');
+        return;
+      }
+      var amount = parseFloat(m[1]);
+      var fromRaw = m[2].trim();
+      var toRaw = m[3].trim();
+
+      // 1) try a unit conversion (length, mass, temperature, etc.)
+      var unit = unitConvert(amount, fromRaw, toRaw);
+      if (unit){
+        out(formatMoney(amount) + ' ' + unit.fromSym + ' = ' + formatMoney(unit.value) + ' ' + unit.toSym);
+        return;
+      }
+      if (unit === false){
+        // recognized units but in different categories
+        out(t('convertUnitMismatch'), 'error');
+        return;
+      }
+
+      // 2) otherwise treat as a currency conversion (3-letter codes)
+      var from = resolveCurrency(fromRaw);
+      var to = resolveCurrency(toRaw);
+      if (!from || !to){
+        out(t('convertUsage'), 'error');
+        return;
+      }
+
+      out(t('convertLooking'), 'dim');
+      fetchRates(from, function(result){
+        if (!result || !result.rates){
+          out(t('convertError'), 'error');
+          return;
+        }
+        var rate = result.rates[to];
+        if (typeof rate !== 'number'){
+          out(t('convertBadCurrency') + to, 'error');
+          return;
+        }
+        var converted = amount * rate;
+        var fromFlag = currencyFlagHTML(from);
+        var toFlag = currencyFlagHTML(to);
+
+        // headline line: <flag> amount FROM = <flag> converted TO
+        outRaw(
+          (fromFlag ? fromFlag + ' ' : '') + escapeHTML(formatMoney(amount) + ' ' + from) +
+          ' = ' +
+          (toFlag ? toFlag + ' ' : '') + escapeHTML(formatMoney(converted) + ' ' + to)
+        );
+        out(t('convertRate') + '1 ' + from + ' = ' + formatMoney(rate) + ' ' + to);
+        if (result.updated){ out(t('convertUpdated') + result.updated, 'dim'); }
+      });
     }
   };
 
@@ -1334,6 +1592,379 @@ body{
 
   function looksLikeCalculator(str){
     return /^[0-9+\-*/(). \t]+$/.test(str) && /[0-9]/.test(str);
+  }
+
+  // ---------- ip lookup ----------
+
+  // builds an SVG flag for any ISO 3166-1 alpha-2 country code by mapping
+  // each letter to its regional-indicator counterpart and rendering it as
+  // text; reuses the crisp hand-drawn flags for the 5 UI languages
+  var IP_FLAG_REUSE = { GB:'EN', UK:'EN', TW:'TW', ID:'ID', FR:'FR', DE:'DE' };
+
+  // hand-drawn, simplified geometric flags for the ~90 most populous
+  // countries; complex emblems are approximated as simple discs/stars/
+  // crescents to stay on-theme with the retro look. all use a 60x40 box.
+  var FLAG_SVGS = {
+    US: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><g fill="#b22234"><rect width="60" height="3.08"/><rect y="6.15" width="60" height="3.08"/><rect y="12.31" width="60" height="3.08"/><rect y="18.46" width="60" height="3.08"/><rect y="24.62" width="60" height="3.08"/><rect y="30.77" width="60" height="3.08"/><rect y="36.92" width="60" height="3.08"/></g><rect width="24" height="21.54" fill="#3c3b6e"/><g fill="#fff"><circle cx="4" cy="4" r="1"/><circle cx="12" cy="4" r="1"/><circle cx="20" cy="4" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="20" cy="12" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></g></svg>',
+    EU: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#003399"/><g fill="#ffcc00"><circle cx="30" cy="8" r="1.4"/><circle cx="38" cy="10.1" r="1.4"/><circle cx="43.9" cy="16" r="1.4"/><circle cx="46" cy="24" r="1.4"/><circle cx="43.9" cy="32" r="1.4"/><circle cx="38" cy="37.9" r="1.4"/><circle cx="30" cy="40" r="1.4"/><circle cx="22" cy="37.9" r="1.4"/><circle cx="16.1" cy="32" r="1.4"/><circle cx="14" cy="24" r="1.4"/><circle cx="16.1" cy="16" r="1.4"/><circle cx="22" cy="10.1" r="1.4"/></g></svg>',
+    SG: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="20" fill="#ef3340"/><circle cx="13" cy="10" r="6" fill="#fff"/><circle cx="15.5" cy="10" r="6" fill="#ef3340"/><g fill="#fff"><circle cx="19" cy="6" r="1"/><circle cx="22" cy="9" r="1"/><circle cx="21" cy="13" r="1"/><circle cx="17" cy="13" r="1"/><circle cx="16" cy="9" r="1"/></g></svg>',
+    CN: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#de2910"/><polygon fill="#ffde00" points="10,6 12,11.5 17.5,11.5 13,15 14.7,20.5 10,17 5.3,20.5 7,15 2.5,11.5 8,11.5"/><circle cx="20" cy="5" r="1.6" fill="#ffde00"/><circle cx="23" cy="8" r="1.6" fill="#ffde00"/><circle cx="23" cy="12" r="1.6" fill="#ffde00"/><circle cx="20" cy="15" r="1.6" fill="#ffde00"/></svg>',
+    IN: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#ff9933"/><rect y="26.67" width="60" height="13.33" fill="#138808"/><circle cx="30" cy="20" r="5" fill="none" stroke="#000080" stroke-width="1"/><circle cx="30" cy="20" r="1" fill="#000080"/></svg>',
+    PK: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#01411c"/><rect width="15" height="40" fill="#fff"/><circle cx="38" cy="20" r="8" fill="#fff"/><circle cx="41" cy="20" r="8" fill="#01411c"/><polygon fill="#fff" points="45,15 46,18 49,18 46.5,20 47.5,23 45,21 42.5,23 43.5,20 41,18 44,18"/></svg>',
+    BR: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#009c3b"/><polygon fill="#ffdf00" points="30,5 54,20 30,35 6,20"/><circle cx="30" cy="20" r="8" fill="#002776"/></svg>',
+    NG: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="20" height="40" fill="#008751"/><rect x="40" width="20" height="40" fill="#008751"/></svg>',
+    BD: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#006a4e"/><circle cx="27" cy="20" r="10" fill="#f42a41"/></svg>',
+    RU: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect y="13.33" width="60" height="13.34" fill="#0039a6"/><rect y="26.67" width="60" height="13.33" fill="#d52b1e"/></svg>',
+    MX: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="20" height="40" fill="#006847"/><rect x="40" width="20" height="40" fill="#ce1126"/><circle cx="30" cy="20" r="4" fill="#8b5a2b"/></svg>',
+    JP: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><circle cx="30" cy="20" r="10" fill="#bc002d"/></svg>',
+    PH: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#0038a8"/><rect y="20" width="60" height="20" fill="#ce1126"/><polygon fill="#fff" points="0,0 26,20 0,40"/><polygon fill="#fcd116" points="6,17 7,19.5 9.5,19.5 7.5,21 8.5,23.5 6,22 3.5,23.5 4.5,21 2.5,19.5 5,19.5"/></svg>',
+    ET: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fcdd09"/><rect width="60" height="13.33" fill="#078930"/><rect y="26.67" width="60" height="13.33" fill="#da121a"/><circle cx="30" cy="20" r="7" fill="#0f47af"/><polygon fill="#fcdd09" points="30,15 31.2,18.5 35,18.5 32,20.8 33.1,24.3 30,22.2 26.9,24.3 28,20.8 25,18.5 28.8,18.5"/></svg>',
+    EG: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#ce1126"/><rect y="26.67" width="60" height="13.33" fill="#000"/><circle cx="30" cy="20" r="3" fill="#c09300"/></svg>',
+    VN: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#da251d"/><polygon fill="#ff0" points="30,8 33,17 42.5,17 35,22.5 38,32 30,26 22,32 25,22.5 17.5,17 27,17"/></svg>',
+    CD: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#007fff"/><polygon fill="#f7d618" points="0,8 60,32 60,28 8,8"/><polygon fill="#ce1021" points="0,12 0,8 52,32 60,32" opacity="0"/><rect x="0" y="9" width="60" height="3" fill="#f7d618" transform="rotate(21.8 0 9)"/><polygon fill="#f7d618" points="9,4 11,9 16,9 12,12.5 13.5,17.5 9,14.5 4.5,17.5 6,12.5 2,9 7,9"/></svg>',
+    IR: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#239f40"/><rect y="26.67" width="60" height="13.33" fill="#da0000"/><circle cx="30" cy="20" r="3" fill="#da0000"/></svg>',
+    TR: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#e30a17"/><circle cx="25" cy="20" r="9" fill="#fff"/><circle cx="28" cy="20" r="7" fill="#e30a17"/><polygon fill="#fff" points="34,20 38,18.5 35.5,22 38,25.5 34,24 31.5,27 31.5,23 27.5,21.5 31.5,20 31.5,16"/></svg>',
+    TH: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="6.67" fill="#a51931"/><rect y="33.33" width="60" height="6.67" fill="#a51931"/><rect y="13.33" width="60" height="13.34" fill="#2d2a4a"/></svg>',
+    ZA: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#de3831"/><rect y="26.67" width="60" height="13.33" fill="#002395"/><rect y="15.33" width="60" height="9.34" fill="#ffb612"/><rect y="17.33" width="60" height="5.34" fill="#007a4d"/><polygon fill="#000" points="0,0 22,20 0,40"/><polygon fill="#007a4d" points="0,4 18,20 0,36"/></svg>',
+    TZ: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#1eb53a"/><polygon fill="#00a3dd" points="60,0 60,40 0,40"/><polygon fill="#000" points="0,40 60,0 48,0 0,32"/><polygon fill="#fcd116" points="0,32 48,0 44,0 0,29"/><polygon fill="#fcd116" points="60,8 12,40 16,40 60,11"/></svg>',
+    IT: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="20" height="40" fill="#009246"/><rect x="40" width="20" height="40" fill="#ce2b37"/></svg>',
+    MM: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fecb00"/><rect y="13.33" width="60" height="13.34" fill="#34b233"/><rect y="26.67" width="60" height="13.33" fill="#ea2839"/><polygon fill="#fff" points="30,9 33,19 43,19 35,25 38,35 30,29 22,35 25,25 17,19 27,19"/></svg>',
+    KR: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><path d="M30 14 a6 6 0 0 1 0 12 a6 6 0 0 0 0 -12" fill="#cd2e3a"/><path d="M30 14 a6 6 0 0 0 0 12 a6 6 0 0 1 0 -12" fill="#0047a0"/></svg>',
+    CO: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fcd116"/><rect y="20" width="60" height="10" fill="#003893"/><rect y="30" width="60" height="10" fill="#ce1126"/></svg>',
+    KE: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="12" fill="#000"/><rect y="14" width="60" height="12" fill="#bb0000"/><rect y="28" width="60" height="12" fill="#006600"/><ellipse cx="30" cy="20" rx="4" ry="8" fill="#bb0000" stroke="#fff" stroke-width="1"/></svg>',
+    ES: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#c60b1e"/><rect y="10" width="60" height="20" fill="#ffc400"/><rect x="14" y="16" width="6" height="8" fill="#c60b1e"/></svg>',
+    AR: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#74acdf"/><rect y="26.67" width="60" height="13.33" fill="#74acdf"/><circle cx="30" cy="20" r="3.5" fill="#f6b40e" stroke="#85340a" stroke-width="0.5"/></svg>',
+    DZ: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="30" height="40" fill="#006233"/><circle cx="31" cy="20" r="7" fill="#d21034"/><circle cx="33.5" cy="20" r="6" fill="#fff"/><polygon fill="#d21034" points="35,20 39,18.5 36.5,22 39,25.5 35,24 33,21"/></svg>',
+    SD: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#d21034"/><rect y="26.67" width="60" height="13.33" fill="#000"/><polygon fill="#007229" points="0,0 22,20 0,40"/></svg>',
+    UG: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#000"/><rect y="6.67" width="60" height="6.66" fill="#fcdc04"/><rect y="13.33" width="60" height="6.67" fill="#d90000"/><rect y="20" width="60" height="6.67" fill="#000"/><rect y="26.67" width="60" height="6.66" fill="#fcdc04"/><rect y="33.33" width="60" height="6.67" fill="#d90000"/><circle cx="30" cy="20" r="5" fill="#fff"/></svg>',
+    IQ: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#ce1126"/><rect y="26.67" width="60" height="13.33" fill="#000"/><text x="30" y="23" font-size="7" text-anchor="middle" fill="#007a3d" font-family="monospace">ALLAH</text></svg>',
+    PL: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect y="20" width="60" height="20" fill="#dc143c"/></svg>',
+    CA: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="15" height="40" fill="#ff0000"/><rect x="45" width="15" height="40" fill="#ff0000"/><polygon fill="#ff0000" points="30,12 31.5,17 36,16 33,20 36,24 31.5,23 30,28 28.5,23 24,24 27,20 24,16 28.5,17"/></svg>',
+    MA: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#c1272d"/><polygon fill="none" stroke="#006233" stroke-width="1.5" points="30,13 32.4,20.4 40.1,20.4 33.9,25 36.2,32.4 30,27.8 23.8,32.4 26.1,25 19.9,20.4 27.6,20.4"/></svg>',
+    SA: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#006c35"/><rect x="12" y="26" width="36" height="3" fill="#fff"/><text x="30" y="20" font-size="8" text-anchor="middle" fill="#fff" font-family="monospace">SHAHADA</text></svg>',
+    UZ: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="12" fill="#1eb53a"/><rect y="28" width="60" height="12" fill="#0099b5"/><rect y="13" width="60" height="14" fill="#ce1126" opacity="0"/><circle cx="12" cy="6" r="3" fill="#fff"/><circle cx="14" cy="6" r="3" fill="#0099b5"/></svg>',
+    PE: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="20" height="40" fill="#d91023"/><rect x="40" width="20" height="40" fill="#d91023"/></svg>',
+    AO: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#cc092f"/><rect y="20" width="60" height="20" fill="#000"/><circle cx="30" cy="20" r="6" fill="none" stroke="#ffcb00" stroke-width="1.5"/></svg>',
+    MY: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect y="5.7" width="60" height="5.7" fill="#cc0001"/><rect y="17.1" width="60" height="5.7" fill="#cc0001"/><rect y="28.5" width="60" height="5.7" fill="#cc0001"/><rect width="60" height="5.7" fill="#cc0001"/><rect width="30" height="22.8" fill="#010066"/><circle cx="11" cy="11" r="6" fill="#fc0"/><circle cx="13.5" cy="11" r="5" fill="#010066"/><polygon fill="#fc0" points="18,11 22,9.5 19.5,13 22,16.5 18,15 16,12"/></svg>',
+    MZ: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#007168"/><rect width="60" height="10.67" fill="#000" y="14.67" opacity="0"/><rect width="60" height="13.33" fill="#fce100"/><rect y="26.67" width="60" height="13.33" fill="#d21034"/><rect y="12.5" width="60" height="2" fill="#fff"/><rect y="25.5" width="60" height="2" fill="#fff"/><polygon fill="#000" points="0,0 22,20 0,40"/></svg>',
+    GH: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fcd116"/><rect width="60" height="13.33" fill="#ce1126"/><rect y="26.67" width="60" height="13.33" fill="#006b3f"/><polygon fill="#000" points="30,16 31.5,20.5 36,20.5 32.3,23.3 33.7,28 30,25 26.3,28 27.7,23.3 24,20.5 28.5,20.5"/></svg>',
+    YE: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#ce1126"/><rect y="26.67" width="60" height="13.33" fill="#000"/></svg>',
+    NP: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#003893" opacity="0"/><polygon fill="#dc143c" stroke="#003893" stroke-width="1.5" points="6,2 34,16 16,16 34,30 6,38"/></svg>',
+    VE: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fc0"/><rect y="13.33" width="60" height="13.34" fill="#00247d"/><rect y="26.67" width="60" height="13.33" fill="#cf142b"/></svg>',
+    MG: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect x="20" width="40" height="20" fill="#fc3d32"/><rect x="20" y="20" width="40" height="20" fill="#007e3a"/><rect width="20" height="40" fill="#fff"/></svg>',
+    CM: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="20" height="40" fill="#007a5e"/><rect x="40" width="20" height="40" fill="#ce1126"/><polygon fill="#fcd116" points="30,16 31.3,20 35.5,20 32.1,22.5 33.4,26.5 30,24 26.6,26.5 27.9,22.5 24.5,20 28.7,20"/></svg>',
+    CI: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="20" height="40" fill="#f77f00"/><rect x="40" width="20" height="40" fill="#009e60"/></svg>',
+    NE: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#e05206"/><rect y="26.67" width="60" height="13.33" fill="#0db02b"/><circle cx="30" cy="20" r="4" fill="#e05206"/></svg>',
+    AU: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#00008b"/><rect width="30" height="20" fill="#00247d"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#fff" stroke-width="3"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#cf142b" stroke-width="1.5"/><rect x="12" width="6" height="20" fill="#fff"/><rect y="7" width="30" height="6" fill="#fff"/><rect x="13" width="4" height="20" fill="#cf142b"/><rect y="8" width="30" height="4" fill="#cf142b"/><polygon fill="#fff" points="15,26 16.5,30 20.5,30 17.2,32.5 18.5,36.5 15,34 11.5,36.5 12.8,32.5 9.5,30 13.5,30"/><polygon fill="#fff" points="45,8 46,10.5 48.5,10.5 46.5,12 47.2,14.5 45,13 42.8,14.5 43.5,12 41.5,10.5 44,10.5"/></svg>',
+    LK: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#ffbe29"/><rect x="6" y="6" width="14" height="28" fill="#00534e"/><rect x="6" y="6" width="7" height="28" fill="#eb7400"/><rect x="22" y="6" width="32" height="28" fill="#8d153a"/></svg>',
+    BF: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#ef2b2d"/><rect y="20" width="60" height="20" fill="#009e49"/><polygon fill="#fcd116" points="30,14 31.8,19.5 37.6,19.5 32.9,23 34.7,28.5 30,25 25.3,28.5 27.1,23 22.4,19.5 28.2,19.5"/></svg>',
+    ML: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fcd116"/><rect width="20" height="40" fill="#14b53a"/><rect x="40" width="20" height="40" fill="#ce1126"/></svg>',
+    RO: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#002b7f"/><rect x="20" width="20" height="40" fill="#fcd116"/><rect x="40" width="20" height="40" fill="#ce1126"/></svg>',
+    MW: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#000"/><rect y="13.33" width="60" height="13.34" fill="#ce1126"/><rect y="26.67" width="60" height="13.33" fill="#339e35"/><circle cx="30" cy="9" r="4" fill="none" stroke="#ce1126" stroke-width="1.5"/></svg>',
+    CL: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect y="20" width="60" height="20" fill="#d52b1e"/><rect width="20" height="20" fill="#0039a6"/><polygon fill="#fff" points="10,5 11.5,9.5 16,9.5 12.3,12.3 13.7,17 10,14 6.3,17 7.7,12.3 4,9.5 8.5,9.5"/></svg>',
+    KZ: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#00afca"/><circle cx="30" cy="19" r="6" fill="#fec50c"/><rect x="28" y="28" width="4" height="6" fill="#fec50c"/></svg>',
+    ZM: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#198a00"/><rect x="42" y="16" width="6" height="24" fill="#de2010"/><rect x="48" y="16" width="6" height="24" fill="#000"/><rect x="54" y="16" width="6" height="24" fill="#ef7d00"/><polygon fill="#ef7d00" points="48,4 51,10 45,10"/></svg>',
+    EC: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#ffdd00"/><rect y="20" width="60" height="10" fill="#034ea2"/><rect y="30" width="60" height="10" fill="#ed1c24"/><circle cx="30" cy="20" r="4" fill="#8b5a2b"/></svg>',
+    SY: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#ce1126"/><rect y="26.67" width="60" height="13.33" fill="#000"/><polygon fill="#007a3d" points="22,16 23,19 26,19 23.6,21 24.5,24 22,22.2 19.5,24 20.4,21 18,19 21,19"/><polygon fill="#007a3d" points="38,16 39,19 42,19 39.6,21 40.5,24 38,22.2 35.5,24 36.4,21 34,19 37,19"/></svg>',
+    NL: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#ae1c28"/><rect y="26.67" width="60" height="13.33" fill="#21468b"/></svg>',
+    SN: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fdef42"/><rect width="20" height="40" fill="#00853f"/><rect x="40" width="20" height="40" fill="#e31b23"/><polygon fill="#00853f" points="30,15 31.4,19.5 36,19.5 32.3,22.3 33.7,27 30,24 26.3,27 27.7,22.3 24,19.5 28.6,19.5"/></svg>',
+    GT: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="20" height="40" fill="#4997d0"/><rect x="40" width="20" height="40" fill="#4997d0"/><circle cx="30" cy="20" r="3" fill="#5b8f3e"/></svg>',
+    TD: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fecb00"/><rect width="20" height="40" fill="#002664"/><rect x="40" width="20" height="40" fill="#c60c30"/></svg>',
+    SO: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#4189dd"/><polygon fill="#fff" points="30,11 32.4,18.5 40.3,18.5 33.9,23 36.4,30.5 30,26 23.6,30.5 26.1,23 19.7,18.5 27.6,18.5"/></svg>',
+    ZW: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#006400"/><rect y="5.7" width="60" height="5.7" fill="#ffd200"/><rect y="11.4" width="60" height="5.7" fill="#d40000"/><rect y="17.1" width="60" height="5.8" fill="#000"/><rect y="22.9" width="60" height="5.7" fill="#d40000"/><rect y="28.6" width="60" height="5.7" fill="#ffd200"/><polygon fill="#fff" points="0,0 22,20 0,40"/><polygon fill="#000" points="0,3 17,20 0,37"/></svg>',
+    GN: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fcd116"/><rect width="20" height="40" fill="#ce1126"/><rect x="40" width="20" height="40" fill="#009460"/></svg>',
+    RW: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#00a1de"/><rect y="20" width="60" height="10" fill="#fad201"/><rect y="30" width="60" height="10" fill="#20603d"/><circle cx="48" cy="9" r="4" fill="#e5be01"/></svg>',
+    BJ: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fcd116"/><rect y="20" width="60" height="20" fill="#e8112d"/><rect width="24" height="40" fill="#008751"/></svg>',
+    CU: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="8" fill="#002a8f"/><rect y="16" width="60" height="8" fill="#002a8f"/><rect y="32" width="60" height="8" fill="#002a8f"/><polygon fill="#cf142b" points="0,0 26,20 0,40"/><polygon fill="#fff" points="7,15 8.5,19.5 13,19.5 9.3,22.3 10.7,27 7,24 3.3,27 4.7,22.3 1,19.5 5.5,19.5"/></svg>',
+    JO: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#000"/><rect y="26.67" width="60" height="13.33" fill="#007a3d"/><polygon fill="#ce1126" points="0,0 26,20 0,40"/><polygon fill="#fff" points="8,17 9,20 12,20 9.6,22 10.5,25 8,23.2 5.5,25 6.4,22 4,20 7,20"/></svg>',
+    DO: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#002d62"/><rect x="30" width="30" height="20" fill="#ce1126"/><rect y="20" width="30" height="20" fill="#ce1126"/><rect x="26" width="8" height="40" fill="#fff"/><rect y="16" width="60" height="8" fill="#fff"/></svg>',
+    CZ: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect y="20" width="60" height="20" fill="#d7141a"/><polygon fill="#11457e" points="0,0 30,20 0,40"/></svg>',
+    GR: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#0d5eaf"/><rect y="4.44" width="60" height="4.44" fill="#fff"/><rect y="13.33" width="60" height="4.44" fill="#fff"/><rect y="22.22" width="60" height="4.45" fill="#fff"/><rect y="31.11" width="60" height="4.44" fill="#fff"/><rect width="22.22" height="22.22" fill="#0d5eaf"/><rect x="8.89" width="4.44" height="22.22" fill="#fff"/><rect y="8.89" width="22.22" height="4.44" fill="#fff"/></svg>',
+    PT: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#f00"/><rect width="24" height="40" fill="#060"/><circle cx="24" cy="20" r="6" fill="#ff0" stroke="#fff" stroke-width="0.5"/><circle cx="24" cy="20" r="3" fill="#fff"/><rect x="22" y="18" width="4" height="4" fill="#f00"/></svg>',
+    SE: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#006aa7"/><rect x="18" width="6" height="40" fill="#fecc00"/><rect y="17" width="60" height="6" fill="#fecc00"/></svg>',
+    AZ: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#509e2f"/><rect width="60" height="13.33" fill="#0092bc"/><rect y="26.67" width="60" height="13.33" fill="#ef3340"/><circle cx="28" cy="20" r="5" fill="#fff"/><circle cx="30" cy="20" r="4" fill="#ef3340"/><polygon fill="#fff" points="34,20 38,18.5 35.5,22 38,25.5 34,24 32,21"/></svg>',
+    HU: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#ce2939"/><rect y="26.67" width="60" height="13.33" fill="#477050"/></svg>',
+    BY: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#d22730"/><rect y="26.67" width="60" height="13.33" fill="#007c30"/><rect width="10" height="40" fill="#fff"/><rect width="5" height="40" fill="#d22730"/></svg>',
+    AE: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#00732f"/><rect y="26.67" width="60" height="13.33" fill="#000"/><rect width="15" height="40" fill="#ff0000"/></svg>',
+    HN: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#0073cf"/><rect y="26.67" width="60" height="13.33" fill="#0073cf"/><polygon fill="#0073cf" points="30,17 30.6,18.8 32.5,18.8 31,20 31.5,21.8 30,20.7 28.5,21.8 29,20 27.5,18.8 29.4,18.8"/></svg>',
+    AT: '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#ed2939"/><rect y="26.67" width="60" height="13.33" fill="#ed2939"/></svg>'
+  };
+
+  function countryFlagHTML(cc){
+    var code = (cc || '').toUpperCase();
+    if (IP_FLAG_REUSE.hasOwnProperty(code) && langMeta[IP_FLAG_REUSE[code]]){
+      return '<span class="flag-icon">' + langMeta[IP_FLAG_REUSE[code]].flagSvg + '</span>';
+    }
+    if (FLAG_SVGS.hasOwnProperty(code)){
+      return '<span class="flag-icon">' + FLAG_SVGS[code] + '</span>';
+    }
+    // generic fallback: render the two-letter code inside a flag-sized box
+    if (!/^[A-Z]{2}$/.test(code)){
+      return '';
+    }
+    var svg = '<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect width="60" height="40" fill="#11151f"/>' +
+      '<text x="30" y="27" font-size="22" text-anchor="middle" fill="#23c9d6" font-family="monospace">' +
+      code + '</text></svg>';
+    return '<span class="flag-icon">' + svg + '</span>';
+  }
+
+  // fetches IP + geolocation info from a key-less public API; invokes
+  // callback with the parsed object, or null on any failure/offline
+  function lookupIpInfo(callback){
+    if (!navigator.onLine){ callback(null); return; }
+    if (!window.fetch){ callback(null); return; }
+    fetch('https://ipapi.co/json/')
+      .then(function(res){
+        if (!res.ok) throw new Error('bad status ' + res.status);
+        return res.json();
+      })
+      .then(function(data){
+        if (!data || data.error){ callback(null); return; }
+        callback(data);
+      })
+      .catch(function(){ callback(null); });
+  }
+
+  // ---------- currency converter ----------
+
+  // most ISO 4217 currency codes share their first two letters with the
+  // ISO 3166 country code (USD->US, IDR->ID, JPY->JP); these are the
+  // notable exceptions, so we can show the right flag next to a currency
+  var CURRENCY_FLAG_OVERRIDE = {
+    EUR:'EU', GBP:'GB', CHF:'CH', DKK:'DK', SEK:'SE', NOK:'NO', CZK:'CZ',
+    PLN:'PL', JPY:'JP', CNY:'CN', AED:'AE', ZAR:'ZA', BRL:'BR', INR:'IN',
+    KRW:'KR', SGD:'SG', MYR:'MY', PHP:'PH', VND:'VN', THB:'TH', TRY:'TR',
+    SAR:'SA', RUB:'RU', UAH:'UA', NGN:'NG', EGP:'EG', PKR:'PK', BDT:'BD'
+  };
+
+  // returns an SVG flag for a 3-letter currency code, via the override
+  // table or by falling back to its first two letters as a country code
+  function currencyFlagHTML(cur){
+    var code = (cur || '').toUpperCase();
+    var cc = CURRENCY_FLAG_OVERRIDE[code] || code.slice(0, 2);
+    return countryFlagHTML(cc);
+  }
+
+  // colloquial / non-ISO currency codes mapped to their official code
+  var CURRENCY_ALIAS = { NTD: 'TWD', RMB: 'CNY', US$: 'USD' };
+
+  // normalizes a raw currency token: must be 3 letters (after alias).
+  // returns the canonical code, or null if it isn't a plausible currency
+  function resolveCurrency(rawToken){
+    var code = (rawToken || '').toUpperCase().trim();
+    if (CURRENCY_ALIAS.hasOwnProperty(code)) code = CURRENCY_ALIAS[code];
+    return /^[A-Z]{3}$/.test(code) ? code : null;
+  }
+
+  // ---------- unit converter ----------
+
+  // each category maps a canonical unit symbol to its factor relative to a
+  // base unit (base factor = 1). conversion: value_base = amount * factor;
+  // result = value_base / toFactor. temperature is handled separately
+  // because it's affine (offset), not a pure ratio.
+  var UNIT_CATEGORIES = {
+    length: {
+      base: 'm',
+      units: { m:1, km:1000, cm:0.01, mm:0.001, 'um':1e-6, nm:1e-9, mi:1609.344, yd:0.9144, ft:0.3048, 'in':0.0254, nmi:1852 }
+    },
+    area: {
+      base: 'm2',
+      units: { 'm2':1, 'km2':1e6, 'cm2':1e-4, 'mm2':1e-6, ha:1e4, 'mi2':2589988.110336, 'ft2':0.09290304, 'in2':0.00064516, ac:4046.8564224 }
+    },
+    volume: {
+      base: 'L',
+      units: { L:1, mL:0.001, 'm3':1000, 'cm3':0.001, gal:3.785411784, qt:0.946352946, pt:0.473176473, floz:0.0295735295625 }
+    },
+    mass: {
+      base: 'kg',
+      units: { kg:1, g:0.001, mg:1e-6, t:1000, lb:0.45359237, oz:0.028349523125, st:6.35029318 }
+    },
+    energy: {
+      base: 'J',
+      units: { J:1, kJ:1000, cal:4.184, kcal:4184, Wh:3600, kWh:3.6e6, eV:1.602176634e-19 }
+    },
+    speed: {
+      base: 'm/s',
+      units: { 'm/s':1, 'km/h':0.277777778, mph:0.44704, kn:0.514444444, 'ft/s':0.3048 }
+    },
+    time: {
+      base: 's',
+      units: { s:1, ms:0.001, 'us':1e-6, ns:1e-9, min:60, h:3600, d:86400, wk:604800 }
+    },
+    power: {
+      base: 'W',
+      units: { W:1, kW:1000, MW:1e6, hp:745.699871582 }
+    },
+    data: {
+      base: 'B',
+      units: { bit:0.125, B:1, kB:1e3, MB:1e6, GB:1e9, TB:1e12, KiB:1024, MiB:1048576, GiB:1073741824, TiB:1099511627776 }
+    },
+    pressure: {
+      base: 'Pa',
+      units: { Pa:1, kPa:1000, MPa:1e6, bar:1e5, atm:101325, psi:6894.757293168, mmHg:133.322387415 }
+    }
+  };
+
+  // temperature units use canonical symbols K, C, F (affine conversions)
+  var TEMP_UNITS = { K:1, C:1, F:1 };
+
+  // accepted input spellings -> canonical symbol. covers SI symbols plus
+  // common full names; case-insensitive, with superscript 2/3 normalized
+  var UNIT_ALIAS = {
+    // length
+    'meter':'m','metre':'m','meters':'m','metres':'m','m':'m',
+    'kilometer':'km','kilometre':'km','kilometers':'km','kilometres':'km','km':'km',
+    'centimeter':'cm','centimetre':'cm','cm':'cm','millimeter':'mm','millimetre':'mm','mm':'mm',
+    'micrometer':'um','micron':'um','um':'um','nanometer':'nm','nm':'nm',
+    'mile':'mi','miles':'mi','mi':'mi','yard':'yd','yards':'yd','yd':'yd',
+    'foot':'ft','feet':'ft','ft':'ft','inch':'in','inches':'in','in':'in',
+    'nauticalmile':'nmi','nmi':'nmi',
+    // area
+    'm2':'m2','sqm':'m2','squaremeter':'m2','squaremetre':'m2',
+    'km2':'km2','sqkm':'km2','cm2':'cm2','mm2':'mm2',
+    'hectare':'ha','ha':'ha','mi2':'mi2','sqmi':'mi2','ft2':'ft2','sqft':'ft2','in2':'in2','sqin':'in2',
+    'acre':'ac','acres':'ac','ac':'ac',
+    // volume
+    'liter':'L','litre':'L','liters':'L','litres':'L','l':'L',
+    'milliliter':'mL','millilitre':'mL','ml':'mL','m3':'m3','cubicmeter':'m3','cubicmetre':'m3','cm3':'cm3',
+    'gallon':'gal','gallons':'gal','gal':'gal','quart':'qt','qt':'qt','pint':'pt','pt':'pt',
+    'fluidounce':'floz','floz':'floz',
+    // mass
+    'kilogram':'kg','kilograms':'kg','kg':'kg','gram':'g','grams':'g','g':'g',
+    'milligram':'mg','mg':'mg','tonne':'t','metricton':'t','t':'t',
+    'pound':'lb','pounds':'lb','lb':'lb','lbs':'lb','ounce':'oz','ounces':'oz','oz':'oz','stone':'st','st':'st',
+    // temperature
+    'k':'K','kelvin':'K','kelvins':'K',
+    'c':'C','celsius':'C','centigrade':'C','degreescelsius':'C','degreecelsius':'C',
+    'f':'F','fahrenheit':'F','degreesfahrenheit':'F','degreefahrenheit':'F',
+    // energy
+    'joule':'J','joules':'J','j':'J','kilojoule':'kJ','kj':'kJ',
+    'calorie':'cal','cal':'cal','kilocalorie':'kcal','kcal':'kcal',
+    'watthour':'Wh','wh':'Wh','kilowatthour':'kWh','kwh':'kWh','electronvolt':'eV','ev':'eV',
+    // speed
+    'm/s':'m/s','mps':'m/s','km/h':'km/h','kmh':'km/h','kph':'km/h',
+    'mph':'mph','knot':'kn','knots':'kn','kn':'kn','ft/s':'ft/s','fps':'ft/s',
+    // time
+    'second':'s','seconds':'s','sec':'s','s':'s','millisecond':'ms','ms':'ms',
+    'microsecond':'us','us':'us','nanosecond':'ns','ns':'ns',
+    'minute':'min','minutes':'min','min':'min','hour':'h','hours':'h','hr':'h','h':'h',
+    'day':'d','days':'d','d':'d','week':'wk','weeks':'wk','wk':'wk',
+    // power
+    'watt':'W','watts':'W','w':'W','kilowatt':'kW','kw':'kW','megawatt':'MW','mw':'MW',
+    'horsepower':'hp','hp':'hp',
+    // data
+    'bit':'bit','bits':'bit','byte':'B','bytes':'B','b':'B',
+    'kilobyte':'kB','kb':'kB','megabyte':'MB','mb':'MB','gigabyte':'GB','gb':'GB','terabyte':'TB','tb':'TB',
+    'kibibyte':'KiB','kib':'KiB','mebibyte':'MiB','mib':'MiB','gibibyte':'GiB','gib':'GiB','tebibyte':'TiB','tib':'TiB',
+    // pressure
+    'pascal':'Pa','pa':'Pa','kilopascal':'kPa','kpa':'kPa','megapascal':'MPa','mpa':'MPa',
+    'bar':'bar','atmosphere':'atm','atm':'atm','psi':'psi','mmhg':'mmHg','torr':'mmHg'
+  };
+
+  // canonicalize a raw unit token: strip spaces, normalize superscripts
+  // (m\u00B2 -> m2), lowercase for alias lookup
+  function normalizeUnitToken(rawToken){
+    var s = (rawToken || '').trim();
+    s = s.replace(/\u00B2/g, '2').replace(/\u00B3/g, '3');
+    s = s.replace(/\s+/g, '');
+    var key = s.toLowerCase();
+    if (UNIT_ALIAS.hasOwnProperty(key)) return UNIT_ALIAS[key];
+    return null;
+  }
+
+  // find which category a canonical unit symbol belongs to
+  function unitCategory(sym){
+    if (TEMP_UNITS.hasOwnProperty(sym)) return 'temperature';
+    for (var cat in UNIT_CATEGORIES){
+      if (UNIT_CATEGORIES.hasOwnProperty(cat) && UNIT_CATEGORIES[cat].units.hasOwnProperty(sym)){
+        return cat;
+      }
+    }
+    return null;
+  }
+
+  // pretty display: turn trailing 2/3 in a unit symbol into superscripts
+  function prettyUnit(sym){
+    return sym.replace(/2/g, '\u00B2').replace(/3/g, '\u00B3');
+  }
+
+  function convertTemperature(amount, from, to){
+    // normalize to Kelvin, then to target
+    var k;
+    if (from === 'K') k = amount;
+    else if (from === 'C') k = amount + 273.15;
+    else k = (amount - 32) * 5 / 9 + 273.15; // F
+    if (to === 'K') return k;
+    if (to === 'C') return k - 273.15;
+    return (k - 273.15) * 9 / 5 + 32; // F
+  }
+
+  // attempts a unit conversion. returns:
+  //   { value, fromSym, toSym } on success,
+  //   false if both tokens are known units but in different categories,
+  //   null if either token isn't a recognized unit (caller tries currency)
+  function unitConvert(amount, fromRaw, toRaw){
+    var fromSym = normalizeUnitToken(fromRaw);
+    var toSym = normalizeUnitToken(toRaw);
+    if (!fromSym || !toSym) return null;
+
+    var fromCat = unitCategory(fromSym);
+    var toCat = unitCategory(toSym);
+    if (!fromCat || !toCat) return null;
+    if (fromCat !== toCat) return false;
+
+    var value;
+    if (fromCat === 'temperature'){
+      value = convertTemperature(amount, fromSym, toSym);
+    } else {
+      var units = UNIT_CATEGORIES[fromCat].units;
+      value = amount * units[fromSym] / units[toSym];
+    }
+    return { value: value, fromSym: prettyUnit(fromSym), toSym: prettyUnit(toSym) };
+  }
+
+  function formatMoney(n){
+    if (!isFinite(n)) return 'Error';
+    // group thousands with commas and keep up to 4 decimals (trimmed)
+    var fixed = (Math.round(n * 10000) / 10000).toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
+    var parts = fixed.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+  }
+
+  // caches rate tables per base currency for 60s so repeated conversions
+  // don't re-hit the API; invokes callback with { rates, updated } or null
+  var rateCache = {};
+
+  function fetchRates(base, callback){
+    if (!window.fetch){ callback(null); return; }
+    var cached = rateCache[base];
+    if (cached && (Date.now() - cached.fetchedAt) < 60000){
+      callback(cached);
+      return;
+    }
+    if (!navigator.onLine){ callback(null); return; }
+    fetch('https://open.er-api.com/v6/latest/' + encodeURIComponent(base))
+      .then(function(res){
+        if (!res.ok) throw new Error('bad status ' + res.status);
+        return res.json();
+      })
+      .then(function(data){
+        if (!data || data.result !== 'success' || !data.rates){ callback(null); return; }
+        // derive an HH:MM:SS timestamp in the user's selected timezone
+        var updated = '';
+        if (data.time_last_update_unix){
+          var d = shiftedNow(tzOffsetMinutes);
+          d = new Date(data.time_last_update_unix * 1000 + tzOffsetMinutes * 60000);
+          updated = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds()) +
+            ' (' + formatOffsetLabel(tzOffsetMinutes) + ')';
+        }
+        var entry = { rates: data.rates, updated: updated, fetchedAt: Date.now() };
+        rateCache[base] = entry;
+        callback(entry);
+      })
+      .catch(function(){ callback(null); });
   }
 
   // ---------- command dispatch ----------
@@ -1451,15 +2082,23 @@ body{
 
   // ---------- taskbar: clock + date ----------
 
+  // '24' (default) or '12' hour display, toggled via the clock dropdown
+  var clockFormat = '24';
+
   function updateClock(){
     var dow = DOW_BY_LANG[currentLang] || DOW_BY_LANG.EN;
     var mon = MON_BY_LANG[currentLang] || MON_BY_LANG.EN;
     var d = shiftedNow(tzOffsetMinutes);
     var h24 = d.getUTCHours();
-    var ampm = h24 >= 12 ? 'PM' : 'AM';
-    var h12 = h24 % 12;
-    if (h12 === 0) h12 = 12;
-    var timeStr = pad(h12) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds()) + ' ' + ampm;
+    var timeStr;
+    if (clockFormat === '12'){
+      var ampm = h24 >= 12 ? 'PM' : 'AM';
+      var h12 = h24 % 12;
+      if (h12 === 0) h12 = 12;
+      timeStr = pad(h12) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds()) + ' ' + ampm;
+    } else {
+      timeStr = pad(h24) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds());
+    }
     var dateStr = dow[d.getUTCDay()] + ' ' + pad(d.getUTCDate()) + ' ' + mon[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
     document.getElementById('clockLabel').textContent = timeStr;
     document.getElementById('dateLabel').textContent = dateStr;
@@ -1467,6 +2106,56 @@ body{
 
   updateClock();
   setInterval(updateClock, 1000);
+
+  // ---------- taskbar: clock format dropdown ----------
+
+  var clockItem = document.getElementById('clockItem');
+  var clockMenu = document.getElementById('clockMenu');
+  var clockOptionButtons = Array.prototype.slice.call(clockMenu.querySelectorAll('.lang-option'));
+
+  function updateClockMenuActive(){
+    clockOptionButtons.forEach(function(btn){
+      var isActive = btn.getAttribute('data-clock') === clockFormat;
+      btn.disabled = isActive;
+      btn.classList.toggle('active', isActive);
+    });
+  }
+
+  function positionClockMenu(){
+    var rect = clockItem.getBoundingClientRect();
+    clockMenu.style.right = (window.innerWidth - rect.right) + 'px';
+    clockMenu.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+  }
+
+  updateClockMenuActive();
+
+  clockItem.addEventListener('click', function(e){
+    e.stopPropagation();
+    var willOpen = clockMenu.hidden;
+    if (willOpen){ positionClockMenu(); updateClockMenuActive(); }
+    clockMenu.hidden = !willOpen;
+  });
+
+  clockOptionButtons.forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (btn.disabled) return;
+      clockFormat = btn.getAttribute('data-clock');
+      updateClock();
+      updateClockMenuActive();
+      clockMenu.hidden = true;
+    });
+  });
+
+  window.addEventListener('resize', function(){
+    if (!clockMenu.hidden) positionClockMenu();
+  });
+
+  document.addEventListener('click', function(e){
+    if (!clockItem.contains(e.target) && !clockMenu.contains(e.target)){
+      clockMenu.hidden = true;
+    }
+  });
 
   // ---------- taskbar: click-to-edit timezone ----------
 
