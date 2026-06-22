@@ -7,7 +7,10 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <title>C:\MATTHEW\PORTFOLIO&gt;</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cn-fontsource-maple-mono-cn@1.0.0/font.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@chinese-fonts/maple-mono-cn@2.0.0/dist/MapleMono-CN-Regular/result.min.css"
+    />
     <style>
       @font-face {
         font-family: "ProFont";
@@ -20,12 +23,16 @@
 
       /* Maple Mono for CJK (Chinese) only. Maple Mono CN is loaded by the
          jsDelivr stylesheet linked in <head>; unicode-range scopes this face
-         to CJK codepoints so Latin text still uses the embedded ProFont. */
+         to CJK codepoints so Latin text still uses the embedded ProFont (monospaced CJK enforced via web font fallback below). */
       @font-face {
         font-family: "Maple Mono CJK";
-        src: local("Maple Mono CN"), local("Maple Mono NF CN"), local("Maple Mono");
+        src:
+          local("Maple Mono CN"), local("Maple Mono NF CN"),
+          local("Maple Mono");
         font-display: swap;
-        unicode-range: U+2E80-2EFF, U+3000-303F, U+3040-30FF, U+3200-9FFF, U+F900-FAFF, U+FF00-FFEF;
+        unicode-range:
+          U+2E80-2EFF, U+3000-303F, U+3040-30FF, U+3200-9FFF, U+F900-FAFF,
+          U+FF00-FFEF;
       }
 
       :root {
@@ -61,7 +68,9 @@
       }
 
       body {
-        font-family: "Maple Mono CJK", "Maple Mono CN", "ProFont", "Consolas", "Lucida Console", monospace;
+        font-family:
+          "ProFont", "Maple Mono CN", "Consolas",
+          "Lucida Console", monospace;
         -webkit-font-smoothing: none;
         font-smooth: never;
         display: flex;
